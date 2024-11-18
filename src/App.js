@@ -1,99 +1,107 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import React, { useState, useEffect } from 'react';
-
+import MovieList from './components/MovieList';
+import GenreDropdown from './components/GenreDropdown';
+import Pagination from './components/Pagination';
+import {
+  fetchGenres,
+  fetchMoviesByName,
+  fetchMoviesByGenre,
+  fetchTopRatedMovies,
+} from './services/api';
 
 function App() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [movies, setMovies] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('name'); // Default filter is "name"
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(0);
 
-  function Showtimes() {
-    const [showtimes, setShowtimes] = useState([]);
-    const [error, setError] = useState(null);
+  // Load genres on mount
+  useEffect(() => {
+    const loadGenres = async () => {
+      const genreList = await fetchGenres();
+      setGenres(genreList);
+    };
+    loadGenres();
+  }, []);
 
-    useEffect(() => {
-        async function getShowtimes() {
-            try {
-                const response = await fetch('http://localhost:3001/showtimes/fetch');
-                if (!response.ok) {
-                    throw new Error('Error fetching showtimes');
-                }
+  // Fetch movies based on the selected filter
+  useEffect(() => {
+    const loadMovies = async () => {
+      let data;
 
-                const data = await response.json();
-                setShowtimes(data);
-            } catch (error) {
-                setError(error.message);
-            }
-        }
-
-        getShowtimes();
-    }, []);
-
-    if (error) {
-      return <div>Error: {error}</div>;
-    }
-
-    return (
-        <div>
-            <h1>Showtimes</h1>
-            <ul>
-                {showtimes.map(show => (
-                    <li key={show.id}>
-                        {show.title} - {show.theatre} - {show.startTime}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-  }
-
-  const registerUser = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/users/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-         setMessage('User registered successfully');
-      } else {
-        setMessage(data.message || 'Failed to register user');
+      if (filter === 'name' && searchQuery) {
+        data = await fetchMoviesByName(searchQuery, page);
+      } else if (filter === 'genre' && selectedGenre) {
+        data = await fetchMoviesByGenre(selectedGenre, page);
+      } else if (filter === 'topRated') {
+        data = await fetchTopRatedMovies(page);
       }
-    } catch (error) {
-      setMessage('Error during registration');
-      console.error(error);
-    }
-  };
-  
-  return (
-    <div>
-      <h1>Login</h1>
-      <form>
-        <input 
-          type="email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          placeholder="Enter your email" 
-        />
-        <input 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          placeholder="Enter your password" 
-        />
-        <button type="submit">Login</button>
-      </form>
 
+      if (data) {
+        setMovies(data.results || []);
+        setPageCount(data.total_pages || 0);
+      }
+    };
+
+    loadMovies();
+  }, [filter, searchQuery, selectedGenre, page]);
+
+  return (
+    <div id="container">
+      <h3>Search Movies</h3>
+
+      {/* Search by Name */}
       <div>
-        <p>{message}</p>
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          disabled={filter !== 'name'}
+        />
+        <button
+          onClick={() => {
+            setFilter('name');
+            setPage(1); // Reset page
+          }}
+          disabled={!searchQuery.trim()}
+        >
+          Search by Name
+        </button>
       </div>
 
-      <Showtimes />  {/* Display the showtimes component here */}
+      {/* Search by Genre */}
+      <div>
+        <GenreDropdown
+          genres={genres}
+          selectedGenre={selectedGenre}
+          onGenreChange={(genre) => {
+            setSelectedGenre(genre);
+            setFilter('genre');
+            setPage(1); // Reset page
+          }}
+        />
+      </div>
+
+      {/* Fetch Top Rated Movies */}
+      <button
+        onClick={() => {
+          setFilter('topRated');
+          setPage(1); // Reset page
+        }}
+      >
+        Show Top Rated
+      </button>
+
+      {/* Display Movies */}
+      <MovieList movies={movies} />
+
+      {/* Pagination */}
+      <Pagination pageCount={pageCount} onPageChange={setPage} />
     </div>
   );
 }
