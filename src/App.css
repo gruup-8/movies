@@ -1,0 +1,21 @@
+#container{
+    margin: 2em;
+}
+
+ul {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+}
+
+ul li {
+    width: 2em;
+}
+
+li.selected{
+    color: red;
+}
+
+.pagination {
+    text-align: center;
+}
