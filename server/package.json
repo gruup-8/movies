@@ -1,12 +1,30 @@
 {
+  "type": "module",
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "testStart": "NODE_ENV=test node index.js",
+    "devStart": "cross-env NODE_ENV=development nodemon index.js",
+    "test": "mocha *.test.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "chai": "^5.1.2",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "express": "^4.21.1",
+    "mocha": "^10.8.2",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.7",
+    "pg": "^8.13.1",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
 }
