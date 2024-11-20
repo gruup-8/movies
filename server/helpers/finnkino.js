@@ -25,18 +25,19 @@ async function fetchShowtimes() {
         const result = await parseStringPromise(response);
 
         // Log the parsed response to inspect the structure
-        console.log("Parsed Finnkino response:", JSON.stringify(result, null, 2));
+        //console.log("Parsed Finnkino response:", JSON.stringify(result, null, 2));
 
         // Check if Shows exist in the response
         if (result.Schedule && result.Schedule.Shows && result.Schedule.Shows[0]) {
             const shows = result.Schedule.Shows[0].Show;
-            console.log("Shows data:", shows);
+            //console.log("Shows data:", shows);
 
             // Map the result to showtimes
             const showtimes = shows.map(show => {
                 const showTimeStr = show.dttmShowStart ? show.dttmShowStart[0] : null;
                 const title = show.Title ? show.Title[0] : "Unknown"; // Fallback to "Unknown" if title is missing
                 const theatre = show.Theatre ? show.Theatre[0] : "Unknown"; // Fallback if theatre is missing
+                const picture = show.Images && show.Images[0].EventSmallImagePortrait ? show.Images[0].EventSmallImagePortrait[0] :  null;
 
                 // Check if showtime is valid
                 let showtimeDate;
@@ -56,10 +57,11 @@ async function fetchShowtimes() {
                     title: title, // Ensure title is set
                     theatre: theatre, // Ensure theatre is set
                     startTime: showtimeDate.toISOString(), // Use the formatted ISO string
+                    pic_link: picture,
                 };
             }).filter(showtime => showtime !== null); // Filter out null values
 
-            console.log("Mapped showtimes:", showtimes);
+            //console.log("Mapped showtimes:", showtimes);
 
             return showtimes;
         } else {
@@ -78,20 +80,20 @@ async function saveTimes(showtimesData) {
         console.log("Showtimes table has been cleared.");
         
         const queryText = `
-            INSERT INTO "Showtimes" (id, movie_title, theatre_name, show_time)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO "Showtimes" (id, movie_title, theatre_name, show_time, picture)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id;
         `;
 
         const promises = showtimesData.map(async (showtime) => {
-            console.log("Raw showtime:", showtime);
+            //console.log("Raw showtime:", showtime);
 
             // Ensure we are getting the correct values
-            const { id, title, theatre, startTime } = showtime;
+            const { id, title, theatre, startTime, pic_link } = showtime;
 
             // Validate if all required fields are present
-            if (!id || !title || !theatre || !startTime) {
-                console.error("Missing data for movie:", id, title, theatre, startTime);
+            if (!id || !title || !theatre || !startTime || !pic_link) {
+                console.error("Missing data for movie:", id, title, theatre, startTime, pic_link);
                 return; // Skip this showtime if any required field is missing
             }
 
@@ -106,7 +108,7 @@ async function saveTimes(showtimesData) {
             // Log the formatted showtime to verify it's correct
             console.log("Formatted showtime:", showtimeDate.toISOString());
 
-            const values = [id, title, theatre, showtimeDate];
+            const values = [id, title, theatre, showtimeDate, pic_link];
 
             // Now insert the values into the database correctly
             const res = await pool.query(queryText, values);

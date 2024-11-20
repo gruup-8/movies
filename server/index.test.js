@@ -13,7 +13,7 @@ describe('GET Movies', () => {
 
         expect(response.status).to.equal(200);
         expect(data).to.be.an('array').that.is.not.empty;
-        expect(data[0]).to.include.all.keys('id', 'title', 'release_date', 'genre');
+        expect(data[0]).to.include.all.keys('id', 'title', 'release_year', 'picture');
     });
 });
 
@@ -25,10 +25,20 @@ describe('GET Movies by id', () => {
         console.log('Response data:', data);
 
         expect(data).to.be.an('object');
-        expect(data).to.include.all.keys('id','title','release_date','genre');
+        expect(data).to.include.all.keys('id','title','release_year','picture');
         expect(data.id).to.equal(1034541);
     });
 });
+
+describe('GET showtimes', () => {
+    it('should return showtimes from database', async() => {
+        const response = await fetch(base_url + '/showtimes');
+        const data = await response.json();
+        expect(response.status).to.equal(200);
+        expect(data).to.be.an('array').that.is.not.empty;
+        expect(data[0]).to.include.all.keys('id', 'movie_title', 'theatre_name', 'show_time', 'picture');
+    })
+})
 
 describe('GET users', () => {
     it ('should get all users', async() => {
