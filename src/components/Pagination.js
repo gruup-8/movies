@@ -4,7 +4,7 @@ import ReactPaginate from 'react-paginate';
 function Pagination({ pageCount, onPageChange }) {
   return (
     <ReactPaginate
-      containerClassName={'pagination'}
+      className="react-paginate"
       breakLabel="..."
       nextLabel="next >"
       onPageChange={(e) => onPageChange(e.selected + 1)}

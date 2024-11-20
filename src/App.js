@@ -15,6 +15,7 @@ function App() {
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchTrigger, setSearchTrigger] = useState(false); // Tracks when "Search by Name" button is pressed
   const [filter, setFilter] = useState('name'); // Default filter is "name"
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
@@ -33,8 +34,9 @@ function App() {
     const loadMovies = async () => {
       let data;
 
-      if (filter === 'name' && searchQuery) {
-        data = await fetchMoviesByName(searchQuery, page);
+      if (filter === 'name' && searchTrigger) {
+        // Fetch movies only when "Search by Name" button is clicked
+        data = await fetchMoviesByName(searchQuery, page);        
       } else if (filter === 'genre' && selectedGenre) {
         data = await fetchMoviesByGenre(selectedGenre, page);
       } else if (filter === 'topRated') {
@@ -48,7 +50,10 @@ function App() {
     };
 
     loadMovies();
-  }, [filter, searchQuery, selectedGenre, page]);
+    // Reset searchTrigger to prevent repeat calls unless button is pressed again
+    if(searchTrigger) setSearchTrigger(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, searchTrigger, selectedGenre, page]);
 
   return (
     <div id="container">
@@ -61,12 +66,12 @@ function App() {
           placeholder="Search by name"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          disabled={filter !== 'name'}
         />
         <button
           onClick={() => {
             setFilter('name');
             setPage(1); // Reset page
+            setSearchTrigger(true); // Trigger search
           }}
           disabled={!searchQuery.trim()}
         >
@@ -99,9 +104,10 @@ function App() {
 
       {/* Display Movies */}
       <MovieList movies={movies} />
-
-      {/* Pagination */}
-      <Pagination pageCount={pageCount} onPageChange={setPage} />
+      <div id='pagination'>
+        {/* Pagination */}
+        <Pagination pageCount={pageCount} onPageChange={setPage} />
+      </div>
     </div>
   );
 }
