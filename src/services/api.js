@@ -45,12 +45,12 @@ export const fetchGenres = async () => {
       console.error('Failed to fetch genres:', error);
       return [];
     }
-  };
+};
 
 // Fetch movies by name
 export const fetchMoviesByName = async (query, page) => {
   const response = await fetch(
-    `${BASE_URL}/search/movie?query=${query}&include_adult=false&language=en-US&page=${page}`,
+    `${BASE_URL}/search/movie?query=${query}&include_adult=false&language=en-US&without_keywords=190370,301766,155477,211121,445&page=${page}`,
     { headers }
   );
 
