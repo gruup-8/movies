@@ -9,6 +9,7 @@ import {
   fetchMoviesByGenre,
   fetchTopRatedMovies,
 } from './services/api';
+import Showtimes from './components/showtimes';
 
 function App() {
   const [movies, setMovies] = useState([]);
@@ -57,6 +58,10 @@ function App() {
 
   return (
     <div id="container">
+      <div className="App">
+      <Showtimes />
+      </div>
+
       <h3>Search Movies</h3>
 
       {/* Search by Name */}
