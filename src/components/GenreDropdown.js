@@ -8,8 +8,8 @@ function GenreDropdown({ genres, selectedGenre, onGenreChange }) {
     >
       <option value="">Select Genre</option>
       {genres.map((genre) => (
-        <option key={genre.id} value={genre.id}>
-          {genre.name}
+        <option key={genre.genre_id} value={genre.genre_id}>
+          {genre.genre_name}
         </option>
       ))}
     </select>

@@ -1,100 +1,118 @@
-const BASE_URL = 'https://api.themoviedb.org/3';
-const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+import React, { useEffect, useState } from 'react';
+import MovieList from '../components/MovieList';
+import GenreDropdown from '../components/GenreDropdown';
 
-/* 
-////////////////////\\\\\\\\\\\\\\\\\\\\
-React (front-end) doesnt like .env files, when trying to get api requests.
-For now im putting bearer token here, it seems to fix the problem for now
-Well we see if this will work after we connect the back-end and front-end together
-\\\\\\\\\\\\\\\\\\\\////////////////////
-(╯°□°)╯︵ ┻━┻
-*/
-const API_TOKEN = `eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyYWU2YTRmMzkxZjhhY2E3YjZiNDFkZWYzYjI1MGY0MSIsIm5iZiI6MTczMTc3MTU4My41MDc0MDcsInN1YiI6IjY3MzM0Zjk1MDJjNDkzOTJmMWU4MTg2YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.tdEQJZl6b6-HrcbSQQvplfz5s1Ff1cEavAEeb3aQZ3c`;
+const MoviePage = () => {
+  const [movies, setMovies] = useState([]);
+  const [error, setError] = useState(null);
+  const [query, setQuery] = useState('');
+  const [genre, setGenre] = useState([]);
+  const [selectGenre, setSelectGenre] = useState('');
+  const [topRated, setTopRated] = useState(false);
 
-const headers = {
-  'Authorization': `Bearer ${API_TOKEN}`,
-  'Content-Type': 'application/json',
-};
-
-// Movie poster
-const transformMovieData = (movies) =>
-  movies.map((movie) => ({
-    id: movie.id,
-    title: movie.title,
-    image: movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : null,
-    overview: movie.overview,
-    release_date: movie.release_date,
-  }));
-
-
-// Fetch genres from TMDb API
-export const fetchGenres = async () => {
+  const fetchGenres = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/genre/movie/list?language=en-US`, {
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch('http://localhost:3001/api/genres');
       if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
+        throw new Error('Failed to fetch genres');
       }
       const data = await response.json();
-      return data.genres; // Returns array of genre objects
-    } catch (error) {
-      console.error('Failed to fetch genres:', error);
-      return [];
+      console.log("Fetched genres:", data); 
+      setGenre(data);
+    } catch (err) {
+      console.error('Error fetching genres: ', err);
+      setError('Failed to fetch genres');
     }
-};
-
-// Fetch movies by name
-export const fetchMoviesByName = async (query, page) => {
-  const response = await fetch(
-    `${BASE_URL}/search/movie?query=${query}&include_adult=false&language=en-US&without_keywords=190370,301766,155477,211121,445&page=${page}`,
-    { headers }
-  );
-
-  if(!response.ok){
-    throw new Error(`Error fetching movies: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-
-  console.log('Fetched Movies:', data.results);
-
-  return {
-    results: transformMovieData(data.results),
-    total_pages: data.total_pages,
   };
-};
 
-// Fetch movies by genre
-export const fetchMoviesByGenre = async (genreId, page) => {
-  const response = await fetch(
-    `${BASE_URL}/discover/movie?with_genres=${genreId}&language=en-US&page=${page}`,
-    { headers }
-  );
-
-  if(!response.ok) {
-    throw new Error(`Error fetching movies: ${response.statusText}`);
-  }
-  const data = await response.json();
-
-  // Map through the results and format them to include the image
-  return {
-    results: transformMovieData(data.results),
-    total_pages: data.total_pages,
+  const fetchMoviesFromDB = async (endpoint) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/movies`);
+      if (!response.ok) {
+        throw new Error(`Error fetching movies: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setMovies(data);
+    } catch (err) {
+      console.error('Error fetching movies from database: ', err);
+      setError('Failed to fetch, Try again');
+    }
   };
-};
 
-// Fetch top-rated movies
-export const fetchTopRatedMovies = async (page) => {
-  const response = await fetch(`${BASE_URL}/movie/top_rated?language=en-US&page=${page}`, {
-    headers,
-  });
-  const data = await response.json();
-  return {
-    results: transformMovieData(data.results),
-    total_pages: data.total_pages,
+  const fetchMoviesByGenre = async (genreId) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/movies/genre/${genreId}`);
+      const data = await response.json();
+      setMovies(data.results);
+    } catch (err) {
+      console.error('Error fetching movies:', err);
+      setError('Failed to fetch movies by genre');
+    }
   };
-};
+
+  const handleGenres = (genreId) => {
+    setSelectGenre(genreId);
+    if (genreId) {
+      fetchMoviesByGenre(genreId);
+    }
+  };
+
+    const handleSearch = async () => {
+      if (!query.trim()) return;
+
+      try {
+        const response = await fetch(`http://localhost:3001/api/movies/search?query=${query.trim()}&page=1`);
+        if (!response.ok) {
+          throw new Error('Failed search');
+        }
+        const data = await response.json();
+        setMovies(data);
+      } catch (err) {
+        console.error('Error with fetch: ', err);
+        setError('Failed to fetch movies');
+      } 
+    };
+
+    const handleTopRated = async () => {
+      setTopRated(true);
+      try {
+        const response = await fetch('http://localhost:3001/api/movies/top-rated');
+        const data = await response.json();
+        setMovies(data);
+      } catch (err) {
+        setError('Failed to fetch top-rated movies');
+      }
+    };
+
+    useEffect(() => {
+      fetchGenres();
+      fetchMoviesFromDB();
+    }, []);
+
+    if (error) {
+      return <div className='error-message'>{error}</div>;
+    }
+
+    return (
+      <div className="movie-page">
+          <input
+            type="text"
+            placeholder="Search movies..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button onClick={handleSearch}>Search</button>
+          <div className="filter-bar">
+          <GenreDropdown
+          genres={genre}
+          selectedGenre={selectGenre}
+          onGenreChange={handleGenres}
+          />
+          <button onClick={handleTopRated}>Top Rated</button>
+        </div>
+        <MovieList movies={movies} />
+      </div>
+    );
+  };
+
+  export default MoviePage;

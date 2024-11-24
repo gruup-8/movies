@@ -2,76 +2,30 @@ import fetch from 'node-fetch';
 import { parseStringPromise } from 'xml2js';
 import dotenv from 'dotenv';
 import pool from './db.js';
-import { exec } from 'child_process';
+import axios from 'axios';
+import fetchWithPuppeteer from './fetchSchedule.js';
 
 dotenv.config();
 
-async function fetchShowtimes() {
+async function fetchShowtimes(areaId, dateStr) {
     try {
-        // Run the curl command to fetch the data from Finnkino API
-        const curlCommand = `curl -X GET "https://www.finnkino.fi/xml/Schedule/" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"`;
-
-        // Execute the curl command
-        const response = await new Promise((resolve, reject) => {
-            exec(curlCommand, (error, stdout, stderr) => {
-                if (error) {
-                    reject(`Error executing curl: ${stderr}`);
-                } else {
-                    resolve(stdout); // This will be the XML response from Finnkino API
-                }
-            });
+        // Attempt to use axios
+        const response = await axios.get('https://www.finnkino.fi/xml/Schedule/', {
+            params: { area: areaId, dt: dateStr },
+            headers: {
+                'Accept': 'application/xml',
+                'User-Agent': 'Mozilla/5.0',
+            },
         });
+        return response.data;
+    } catch (axiosError) {
+        console.warn('Axios failed, falling back to Puppeteer:', axiosError.message);
 
-        const result = await parseStringPromise(response);
-
-        // Log the parsed response to inspect the structure
-        //console.log("Parsed Finnkino response:", JSON.stringify(result, null, 2));
-
-        // Check if Shows exist in the response
-        if (result.Schedule && result.Schedule.Shows && result.Schedule.Shows[0]) {
-            const shows = result.Schedule.Shows[0].Show;
-            //console.log("Shows data:", shows);
-
-            // Map the result to showtimes
-            const showtimes = shows.map(show => {
-                const showTimeStr = show.dttmShowStart ? show.dttmShowStart[0] : null;
-                const title = show.Title ? show.Title[0] : "Unknown"; // Fallback to "Unknown" if title is missing
-                const theatre = show.Theatre ? show.Theatre[0] : "Unknown"; // Fallback if theatre is missing
-                const picture = show.Images && show.Images[0].EventSmallImagePortrait ? show.Images[0].EventSmallImagePortrait[0] :  null;
-
-                // Check if showtime is valid
-                let showtimeDate;
-                if (showTimeStr) {
-                    showtimeDate = new Date(showTimeStr);
-                    if (isNaN(showtimeDate)) {
-                        console.error(`Invalid date format for showtime: ${showTimeStr}`);
-                        return null; // Return null if invalid date
-                    }
-                } else {
-                    console.error("No showtime found for show:", show);
-                    return null;
-                }
-
-                return {
-                    id: show.ID[0],
-                    title: title, // Ensure title is set
-                    theatre: theatre, // Ensure theatre is set
-                    startTime: showtimeDate.toISOString(), // Use the formatted ISO string
-                    pic_link: picture,
-                };
-            }).filter(showtime => showtime !== null); // Filter out null values
-
-            //console.log("Mapped showtimes:", showtimes);
-
-            return showtimes;
-        } else {
-            throw new Error("Shows data not found in the API response.");
-        }
-    } catch (error) {
-        console.error('Error fetching showtimes:', error);
-        throw error; // Rethrow the error for higher-level handling
+        // Fallback to Puppeteer
+        return await fetchWithPuppeteer(areaId, dateStr);
     }
-}
+};
+
 
 async function saveTimes(showtimesData) { 
     try {

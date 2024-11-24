@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import AreasMenu from './areas';
+
 
 const Showtimes = () => {
+    const [selectedArea, setSelectedArea] = useState(null);
     const [showtimes, setShowtimes] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchShowtimes = async () => {
+        const fetchShowtimes = async (areaId) => {
+            setLoading(true);
+            setError(null);
+
             try {
-                const response = await axios.get('http://localhost:3001/showtimes/fetch');
+                const response = await axios.get('http://localhost:3001/areas/shows', {
+                    params: {
+                        area_id: areaId,
+                    },
+                });
                 setShowtimes(response.data);
             } catch (err) {
                 setError('Failed fetching showtimes');
@@ -19,30 +28,30 @@ const Showtimes = () => {
             }
         };
 
-        fetchShowtimes();
-    }, []);
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>{error}</div>;
-    }
+        useEffect(() => {
+            if (selectedArea) {
+                fetchShowtimes(selectedArea);
+            }
+        }, [selectedArea]);
 
     return (
         <div>
             <h1>Showtimes</h1>
-            <ul>
-                {showtimes.map((showtime) => (
-                    <li key={showtime.id}>
-                        <h2>{showtime.title}</h2>
-                        <p>{showtime.theatre}</p>
-                        <p>{new Date(showtime.startTime).toLocaleString()}</p>
-                        {showtime.pic_link && <img src={showtime.pic_link} alt={showtime.title}/>}
-                    </li>
-                ))}
-            </ul>
+            <AreasMenu onAreaSelect={(areaId) => setSelectedArea(areaId)} />
+            {loading && <div>Loading...</div>}
+            {error && <div>{error}</div>}
+            {!loading && !error && (
+                <ul>
+                    {showtimes.map((showtime) => (
+                        <li key={showtime.id}>
+                            <h2>{showtime.title}</h2>
+                            <p>{showtime.theatre}</p>
+                            <p>{new Date(showtime.startTime).toLocaleString()}</p>
+                            {showtime.pic_link && <img src={showtime.pic_link} alt={showtime.title} />}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };
