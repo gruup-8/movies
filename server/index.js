@@ -10,12 +10,13 @@ import reviewRouter from './routers/reviewRouter.js'
 import customRouter from './routers/customRouter.js'
 import showsRouter from './routers/showsRouter.js'
 
-dotenv.config()
+dotenv.config();
 
 const port = process.env.PORT
 
 const app = express()
 app.use(cors({ origin: 'http://localhost:3000' }))
+
 app.use(express.json())
 app.use('/api/movies', movieRouter);
 app.use('/api/genres', genreRouter);
@@ -24,7 +25,7 @@ app.use('/groups', groupRouter);
 app.use('/favorites', favoriteRouter);
 app.use('/review', reviewRouter);
 app.use('/custom', customRouter);
-app.use('/showtimes', showsRouter);
+app.use('/areas', showsRouter);
 
 app.use((err,req,res,next) => {
     const statusCode = err.statusCode || 500

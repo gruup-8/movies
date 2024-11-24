@@ -21,7 +21,7 @@ router.get('/Genres', async (req, res) => {
         const client = await pool.connect();
         for (const genre of genres) {
             await client.query(
-                'INSERT INTO "Genres" (genre_id, genre_name) VALUES ($1, $2) ON CONFLICT (genre_id) DO nOTHING',
+                'INSERT INTO "Genres" (genre_id, genre_name) VALUES ($1, $2) ON CONFLICT (genre_id) DO NOTHING',
                 [genre.id, genre.name]
             );
         }

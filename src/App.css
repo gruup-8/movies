@@ -25,7 +25,8 @@
 }
 /* Movie poster style */
 .movie-poster {
-    width: auto;
+    width: 200px;
+    height: 300px;
     border-radius: 8px;
     object-fit: cover;
 }
