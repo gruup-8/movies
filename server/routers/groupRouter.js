@@ -174,4 +174,19 @@ router.delete('/:groupId/user/:userId', authenticateUser, async (req, res) => {
     }
 });
 
+router.delete('/:groupId/member', authenticateUser, async (req, res) => {
+    const groupId = req.params.groupId;
+    const userId = req.user.id;
+
+    try {
+        await pool.query(
+            'DELETE FROM "GroupMembers" WHERE group_id = $1 AND user_id = $2',
+            [groupId, userId]
+        );
+        res.status(200).json({ message: 'You left the group' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error leaving the group' });
+    }
+});
+
 export default router;

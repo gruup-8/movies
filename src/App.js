@@ -1,41 +1,85 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
 import MovieList from './components/MovieList';
 import GenreDropdown from './components/GenreDropdown';
 import Pagination from './components/Pagination';
-import cors from 'cors';
 import MoviePage from './services/api';
 import Showtimes from './components/showtimes';
-import AreasMenu from './components/areas';
 import MovieDetails from './components/movieDetails';
-
-/*App.use(cors({
-  origin: 'https://localhost:3000',
-  methods: ['GET', 'POST'],
-}));*/
+import LoginForm from './components/login';
+import RegisterForm from './components/register';
+import GroupManagement from './components/groupManagement';
+import { isAuthenticated, logout } from './services/authService';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setIsLoggedIn(false);
+    navigate('/'); // Redirect to the homepage after logout
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    navigate('/'); // Redirect to the homepage after login
+  };
+
   return (
-    <Router>
-      <div id="container">
-        <div className="App">
-          <h3>Search Movies</h3>
-          {/* Showtimes component is always visible */}
-          <Showtimes />
-        </div>
+    <div id="container">
+      <div className="App">
+        <h3>Search Movies</h3>
 
-        <Routes>
-          {/* Routes for navigating between components/pages */}
-          <Route path="/" element={<MoviePage />} />
-        </Routes>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              {isLoggedIn ? (
+                <button onClick={handleLogout}>Logout</button>
+              ) : (
+                <>
+                  <Link to="/login">Login</Link>
+                  <Link to="/register">Register</Link>
+                </>
+              )}
+            </li>
+          </ul>
+        </nav>
       </div>
-      <Routes>
-          <Route path="/" element={<MovieList />} />
-          <Route path="/movie/:id" element={<MovieDetails />} />  
-      </Routes>
-    </Router>
 
+      <Routes>
+        {/* Public Route: Movies and Showtimes (always accessible) */}
+        <Route
+          path="/"
+          element={
+            <div>
+              <Showtimes />
+              <h1>Movies</h1>
+              <MoviePage />
+
+              {/* Conditionally render Group Management */}
+              {isLoggedIn && (
+                <>
+                  <hr />
+                  <h1>Your Groups</h1>
+                  <GroupManagement />
+                </>
+              )}
+            </div>
+          }
+        />
+
+        {/* Public Route: Login */}
+        <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
+
+        {/* Public Route: Register */}
+        <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
+      </Routes>
+    </div>
   );
 }
 
