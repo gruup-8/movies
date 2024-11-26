@@ -7,7 +7,18 @@ function getUserId() {
 
 export const fetchGroups = async () => {
     const userId = getUserId();
+    if (!userId) {
+        console.error('Cannot fetch groups: user is not authenticated.');
+        throw new Error('User is not authenticated');
+    }
+    console.log('Fetching groups with userId:', userId); 
 
+    const headers = {
+        'Content-Type': 'application/json',
+        'user-id': userId,
+    };
+
+    console.log('Request headers:', headers);
     const response = await fetch(`${API_URL}`, {
         method: 'GET',
         headers: {
@@ -16,10 +27,21 @@ export const fetchGroups = async () => {
         },
     });
 
+    console.log('Request Headers:', response.headers);
+
     if (!response.ok) {
-        throw new Error('Failed to fetch groups');
+        const errorData = await response.json();
+        console.error('Failed to fetch groups:', errorData); // Debug error response
+        throw new Error(errorData.message || 'Failed to fetch groups');
     }
-    return await response.json();
+    const data = await response.json();
+    console.log('Groups fetched:', data);
+
+    if (data.length === 0) {
+        console.log('User has no groups'); // Log this case for debugging
+    }
+
+    return data;
 };
 
 export const fetchGroupDetails = async (groupId) => {

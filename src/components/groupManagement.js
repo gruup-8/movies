@@ -88,6 +88,9 @@ const GroupManagement = () => {
     };
 
     const isCreator = groupDetails?.creator_id === userId;
+    if (groups.length === 0) {
+        return <div>You have no groups.</div>;
+    }
 
     return (
       <div>
