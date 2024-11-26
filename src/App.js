@@ -74,6 +74,8 @@ function App() {
             </div>
           }
         />
+        {/* Route for movie details */}
+        <Route path='/movie/:id' element={<MovieDetails />} />
 
         {/* Public Route: Login */}
         <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
