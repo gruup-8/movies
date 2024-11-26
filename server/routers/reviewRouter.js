@@ -14,24 +14,32 @@ router.get('/', async (req,res) => {
 });
 
 router.post('/', authenticateUser, async (req, res) => {
-    const userEmail = req.user.email;
-    const {movie_id, stars, comment} = req.body;
+    console.log('Received request to post review');
 
-    if(!movie_id || !stars || stars < 1 || stars > 5) {
+    const userId = req.user.id;  // Assuming authentication is successful
+    const userEmail = req.user.email;
+    const { movie_id, stars, comment } = req.body;
+
+    // Log request data
+    console.log('Request Data:', { userId, userEmail, movie_id, stars, comment });
+
+    if (!movie_id || !stars || stars < 1 || stars > 5) {
         return res.status(400).json({ message: 'Invalid movie or stars' });
     }
 
     try {
+        // Your logic here
         const result = await pool.query(
-           'INSERT INTO "Review" (movie_id, user_email, stars, comment) VALUES ($1, $2, $3, $4) RETURNING *',
+            'INSERT INTO "Review" (movie_id, user_email, stars, comment, timestamp) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP) RETURNING *',
             [movie_id, userEmail, stars, comment]
         );
-
+        console.log('Review added:', result.rows[0]);
         res.status(201).json({
             message: 'Review added successfully',
-            review: result.rows[0]
+            review: result.rows[0],
         });
     } catch (error) {
+        console.error('Error adding review:', error);
         res.status(500).json({ message: 'Error adding review' });
     }
 });
