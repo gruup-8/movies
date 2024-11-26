@@ -16,6 +16,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
   const navigate = useNavigate();
 
+  sessionStorage.getItem('userId');
+  
   const handleLogout = () => {
     logout();
     setIsLoggedIn(false);

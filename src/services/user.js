@@ -12,11 +12,24 @@ export async function loginScreen(email, password) {
         });
 
         const data = await response.json();
+        console.log('Login response:', data);
+        console.log('User object in response:', data.user);
 
         if (response.ok) {
-            sessionStorage.setItem('userId', data.userId);
+            const userId = data.user.id;
+            console.log('Extracted userId:', userId);
+
+            if (userId === undefined || userId === null) {
+                    console.error('No userId found in login response:', data);
+                    throw new Error('Login response is missing userId');
+            }
+            
+            sessionStorage.setItem('userId', userId);
+            console.log('SessionStorage userId:', sessionStorage.getItem('userId'));
+            console.log('UserId saved in sessionStorage:', userId);
             return data;
         } else {
+            console.error('Login failed:', data.message); // Debug log
             throw new Error(`Login failed: ${data.message}`);
         }
     } catch (error) {
