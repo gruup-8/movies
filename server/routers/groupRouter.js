@@ -55,14 +55,52 @@ router.post('/:groupId/request', authenticateUser, async (req, res) => {
     const userId  = req.user.id;
     const groupId = req.params.groupId;
 
+    console.log('Received request to join group:', { userId, groupId });
+
     try {
+        const group = await pool.query(
+            'SELECT creator_id FROM "Groups" WHERE id = $1',
+            [groupId]
+        );
+
+        if (group.rowCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+        console.log('Group creator_id:', group.rows[0].creator_id);
+        console.log('User ID Type:', typeof userId);
+        console.log('Group Creator ID Type:', typeof group.rows[0].creator_id);
+        if (parseInt(group.rows[0].creator_id) === parseInt(userId)) {
+            console.log('Group creator trying to join own group.');
+            return res.status(400).json({ message: 'You cannot request to join your own group' });
+        }
+
+        const isMember = await pool.query(
+            'SELECT * FROM "GroupMembers" WHERE group_id = $1 AND user_id = $2',
+            [groupId, userId]
+        );
+
+        if (isMember.rowCount > 0) {
+            return res.status(400).json({ message: 'You are already a member of this group' });
+        }
+
         const existingReq = await pool.query(
             'SELECT * FROM "GroupRequests" WHERE group_id = $1 AND user_id = $2',
             [groupId, userId]
         );
 
         if (existingReq.rowCount > 0) {
-            return res.status(400).json({ message: 'You have requested to join already' });
+            const requestStatus = existingReq.rows[0].status;
+            if (requestStatus === 'accepted') {
+                return res.status(400).json({ message: 'You have already been accepted into this group' });
+            }
+            if (requestStatus === 'declined') {
+                await pool.query(
+                    'UPDATE "GroupRequests" SET status = $1 WHERE group_id = $2 AND user_id = $3',
+                    ['pending', groupId, userId]
+                );
+                return res.status(200).json({ message: 'Your request has been re-submitted' });
+            }
+            return res.status(400).json({ message: 'You have already requested to join this group' });
         }
 
         await pool.query(
@@ -112,18 +150,21 @@ router.post('/:groupId/answer/:userId', authenticateUser, async (req, res) => {
     }
 });
 
-router.get('/:groupId', authenticateUser, async (req, res) => {
-    const groupId = req.params.groupId;
+router.get('/:id', authenticateUser, async (req, res) => {
+    const groupId = req.params.id;
     const userId = req.user.id;
+
+    console.log('Request received. User:', req.user);
+    console.log('Group ID in backend:', groupId);
 
     try {
         const result = await pool.query(
             `SELECT g.id, g.name
             FROM "Groups" g
-            LEFT JOIN "GroupMembers" gm ON g.id = gm.group_id
+            LEFT JOIN "GroupMembers" gm ON g.id = gm.group_id AND gm.user_id = $1
             LEFT JOIN "GroupRequests" gr ON g.id = gr.group_id AND gr.user_id = $1
-            WHERE g.id = $1 AND (gm.user_id = $2 OR (gr.status = 'accepted' AND gr.user_id = $2))`,
-            [groupId, userId]
+            WHERE g.id = $2 AND (gm.user_id IS NOT NULL OR (gr.status = 'accepted' AND gr.user_id = $1))`, // Fix query parameter usage
+            [userId, groupId] 
         );
         if (result.rows.length === 0) {
             return res.status(403).json({ message: 'You are not a member' });

@@ -45,12 +45,14 @@ export const fetchGroups = async () => {
 };
 
 export const fetchGroupDetails = async (groupId) => {
+    console.log('Fetching group details for ID:', groupId);
     const userId = getUserId();
 
     if (!userId) {
         throw new Error('User is not authenticated');
     }
     try {
+        console.log('API Call URL:', `${API_URL}/${groupId}`);
         const response = await fetch(`${API_URL}/${groupId}`, {
             method: 'GET',
             headers: {
@@ -59,7 +61,8 @@ export const fetchGroupDetails = async (groupId) => {
             },
         });
         if (!response.ok) {
-            throw new Error('Something went wrong');
+            const error = await response.json();
+            throw new Error(error.message || 'Something went wrong');
         }
         const data = await response.json();
         return data;
@@ -104,6 +107,7 @@ export const deleteGroup = async (groupId) => {
 
 export const sendJoinReq = async (groupId) => {
     const userId = getUserId();
+    console.log('User ID:', userId); 
     
     const response = await fetch(`${API_URL}/${groupId}/request`, {
         method: 'POST',
@@ -113,6 +117,8 @@ export const sendJoinReq = async (groupId) => {
         },
     });
     if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response:', errorData.message);
         throw new Error('Something went wrong');
     }
     return await response.json();

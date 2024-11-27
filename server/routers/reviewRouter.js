@@ -15,7 +15,6 @@ router.get('/', async (req,res) => {
 
 router.post('/', authenticateUser, async (req, res) => {
     console.log('Received request to post review');
-
     const userId = req.user.id;  // Assuming authentication is successful
     const userEmail = req.user.email;
     const { movie_id, stars, comment } = req.body;
@@ -30,7 +29,7 @@ router.post('/', authenticateUser, async (req, res) => {
     try {
         // Your logic here
         const result = await pool.query(
-            'INSERT INTO "Review" (movie_id, user_email, stars, comment, timestamp) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP) RETURNING *',
+           'INSERT INTO "Review" (movie_id, user_email, stars, comment, timestamp) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP) RETURNING *',
             [movie_id, userEmail, stars, comment]
         );
         console.log('Review added:', result.rows[0]);

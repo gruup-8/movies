@@ -5,15 +5,14 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 //app.use(cors({ origin: 'http://localhost:3000' }));
-
 const rootElement = document.getElementById('root');
 const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>,
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
   </React.StrictMode>
 );
 

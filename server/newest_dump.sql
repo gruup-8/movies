@@ -2,6 +2,16 @@
 -- Please log an issue at https://github.com/pgadmin-org/pgadmin4/issues/new/choose if you find any bugs, including reproduction steps.
 BEGIN;
 
+CREATE SEQUENCE IF NOT EXISTS public.showtimes_id_seq;
+
+CREATE SEQUENCE IF NOT EXISTS public.users_id_seq;
+
+CREATE TABLE IF NOT EXISTS public."Areas"
+(
+    area_id character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    area_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Areas_pkey" PRIMARY KEY (area_id)
+);
 
 CREATE TABLE IF NOT EXISTS public."Custom"
 (
@@ -59,21 +69,18 @@ CREATE TABLE IF NOT EXISTS public."Movies"
 (
     id integer NOT NULL,
     title character varying(255) COLLATE pg_catalog."default" NOT NULL,
-    description text COLLATE pg_catalog."default",
-    release_date date,
-    genre character varying(150) COLLATE pg_catalog."default",
+    release_year integer,
+    poster_path character varying(255) COLLATE pg_catalog."default",
     CONSTRAINT "Movies_pkey" PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS public."Review"
 (
-    id serial NOT NULL,
     movie_id integer NOT NULL,
     user_email character varying(255) COLLATE pg_catalog."default" NOT NULL,
     stars integer NOT NULL,
     "timestamp" timestamp(0) without time zone DEFAULT now(),
-    comment text COLLATE pg_catalog."default",
-    CONSTRAINT "Review_pkey" PRIMARY KEY (id)
+    comment text COLLATE pg_catalog."default"
 );
 
 CREATE TABLE IF NOT EXISTS public."Showtimes"
@@ -82,6 +89,7 @@ CREATE TABLE IF NOT EXISTS public."Showtimes"
     movie_title character varying(255) COLLATE pg_catalog."default" NOT NULL,
     theatre_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
     show_time timestamp with time zone,
+    picture character varying(255) COLLATE pg_catalog."default",
     CONSTRAINT "Showtimes_pkey" PRIMARY KEY (id)
 );
 
@@ -109,17 +117,12 @@ ALTER TABLE IF EXISTS public."Custom"
 
 
 ALTER TABLE IF EXISTS public."Custom"
-    ADD CONSTRAINT "Custom_movie_id_fkey" FOREIGN KEY (movie_id)
+    ADD CONSTRAINT custom_movie_id_fkey FOREIGN KEY (id)
     REFERENCES public."Movies" (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
-
-
-ALTER TABLE IF EXISTS public."Favorites"
-    ADD CONSTRAINT "Favorites_movie_id_fkey" FOREIGN KEY (movie_id)
-    REFERENCES public."Movies" (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
+    ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS "Custom_pkey"
+    ON public."Custom"(id);
 
 
 ALTER TABLE IF EXISTS public."Favorites"
@@ -127,6 +130,15 @@ ALTER TABLE IF EXISTS public."Favorites"
     REFERENCES public."Users" (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public."Favorites"
+    ADD CONSTRAINT favorites_movie_id_fkey FOREIGN KEY (id)
+    REFERENCES public."Movies" (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS "Favorites_pkey"
+    ON public."Favorites"(id);
 
 
 ALTER TABLE IF EXISTS public."GroupMembers"
@@ -160,13 +172,6 @@ ALTER TABLE IF EXISTS public."GroupRequests"
 ALTER TABLE IF EXISTS public."Groups"
     ADD CONSTRAINT "Groups_creator_id_fkey" FOREIGN KEY (creator_id)
     REFERENCES public."Users" (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION;
-
-
-ALTER TABLE IF EXISTS public."Review"
-    ADD CONSTRAINT "Review_movie_id_fkey" FOREIGN KEY (movie_id)
-    REFERENCES public."Movies" (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
 
