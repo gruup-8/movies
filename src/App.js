@@ -75,11 +75,12 @@ function App() {
           }
         />
 
+        <Route path="/movie/:id" element={<MovieDetails />} />
         {/* Public Route: Login */}
         <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
-
         {/* Public Route: Register */}
         <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
+        <Route path="/groups/:groupId" element={<GroupManagement />} />
       </Routes>
     </div>
   );
