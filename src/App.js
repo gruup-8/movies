@@ -11,6 +11,8 @@ import LoginForm from './components/login';
 import RegisterForm from './components/register';
 import GroupManagement from './components/groupManagement';
 import { isAuthenticated, logout } from './services/authService';
+import FavoritesPage from './components/Favorites';
+import PublicFavoritesPage from './components/PublicFavorites.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
@@ -69,6 +71,10 @@ function App() {
                   <hr />
                   <h1>Your Groups</h1>
                   <GroupManagement />
+
+                  <hr />
+                  <h1>Favorites</h1>
+                  <FavoritesPage />
                 </>
               )}
             </div>
@@ -83,6 +89,7 @@ function App() {
         {/* Public Route: Register */}
         <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
         <Route path="/groups/:groupId" element={<GroupManagement />} />
+        <Route path="/favorites/public/:userId" element={<PublicFavoritesPage />} />
       </Routes>
     </div>
   );

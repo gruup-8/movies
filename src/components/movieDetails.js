@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { addFavorites } from '../services/favorites';
 import MovieReview from './MovieReview';
 
 const MovieDetails = () => {
-    const {id} = useParams();
+    const { id } = useParams();
     const [movie, setMovie] = useState(null);
     const [error, setError] = useState(null);
+    const [message, setMessage] = useState('');
+
+    const handleAdd = async () => {
+        console.log('Movie ID being added to favorites:', id);
+        const requestBody = {
+            id: id,
+        };
+        console.log('Sending request to add favorite:', requestBody);
+        try {
+            await addFavorites(id);
+            setMessage('Movie added to favorites!');
+        } catch (err) {
+            setMessage(err.message);
+        }
+    };
 
     useEffect(() => {
         const fetchMovieDetails = async () => {
@@ -23,6 +39,8 @@ const MovieDetails = () => {
 
         fetchMovieDetails();
     }, [id]);
+    
+
 
     if (error) {
         return <div>{error}</div>;
@@ -33,6 +51,8 @@ const MovieDetails = () => {
 
     return (
         <div className='movie-details'>
+            <button onClick={handleAdd}>Add to Favorites</button>
+            {message && <p>{message}</p>}
             <h1>{movie.title}</h1>
             <img src={movie.poster_path} alt={movie.title}></img>
             <p>{movie.overview}</p>
