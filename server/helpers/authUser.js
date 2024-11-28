@@ -12,6 +12,7 @@ const authenticateUser = async (req, res, next) => {
         }
 
         req.user = { id: userId, email: result.rows[0].email };
+        console.log('email:',req.user.email);
         next();
     } catch (error) {
         return res.status(500).json({ message: 'Error' });

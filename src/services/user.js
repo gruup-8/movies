@@ -17,7 +17,9 @@ export async function loginScreen(email, password) {
 
         if (response.ok) {
             const userId = data.user.id;
+            const userEmail = data.user.email;
             console.log('Extracted userId:', userId);
+            console.log('Extracted userEmail:', userEmail);
 
             if (userId === undefined || userId === null) {
                     console.error('No userId found in login response:', data);
@@ -25,8 +27,9 @@ export async function loginScreen(email, password) {
             }
             
             sessionStorage.setItem('userId', userId);
+            sessionStorage.setItem('userEmail', userEmail);
             console.log('SessionStorage userId:', sessionStorage.getItem('userId'));
-            console.log('UserId saved in sessionStorage:', userId);
+            console.log('SessionStorage userEmail:', sessionStorage.getItem('userEmail'));
             return data;
         } else {
             console.error('Login failed:', data.message); // Debug log

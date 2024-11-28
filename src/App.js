@@ -80,6 +80,8 @@ function App() {
             </div>
           }
         />
+        {/* Route for movie details */}
+        <Route path='/movie/:id' element={<MovieDetails />} />
 
         <Route path="/movie/:id" element={<MovieDetails />} />
         {/* Public Route: Login */}
