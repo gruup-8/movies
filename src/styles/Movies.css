@@ -1,0 +1,103 @@
+/* General container styles */
+.movie-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+}
+/* Individual movie card */
+.movie-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+/* Add hover effect */
+.movie-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+/* Movie poster style */
+.movie-poster {
+    width: 200px;
+    height: 300px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.movie-poster span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 400px;
+    background-color: #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #555;
+}
+/* Movie title styles */
+.movie-title {
+    margin-top: 10px;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .movie-poster {
+        width: 60px;
+    }
+    .movie-poster span {
+        height: 100px;
+    }
+}  
+@media (max-width: 480px) {
+    .movie-poster {
+        width: 50px;
+    }
+    .movie-poster span {
+        height: 80px;
+    }
+}
+#container{
+	margin: 2em;
+}
+ul.react-paginate {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    list-style-type: none;
+    padding: 0 5rem;
+}
+ul.react paginate li a{
+    border-radius: 7px;
+    padding: 0.1rem 1rem;
+    border: gray 1px solid;
+    cursor: pointer;
+}
+ul.react-paginate li.previous a,
+ul.react-paginate li.next a,
+ul.react-paginate li.break a {
+  border-color: transparent;
+}
+ul.react-paginate li.selected a {
+    background-color: #b15c16;
+    border-color: transparent;
+    color: rgb(255, 255, 255);
+    min-width: 32px;
+}
+ul.react-paginate li.disabled a {
+    color: grey;
+}
+ul.react-paginate li.disable,
+ul.react-paginate li.disabled a {
+  cursor: default;
+}
