@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import pool from '../helpers/db.js';
 import { authenticateUser } from '../helpers/authUser.js';
-import crypto from 'crypto'
 
 const router = Router();
 
@@ -9,7 +8,12 @@ router.get('/', authenticateUser, async (req, res) => {
     const userId = req.user.id;
 
     try {
-        const result = await pool.query('SELECT movie_id FROM "Favorites" WHERE user_id = $1', [userId]);
+        const result = await pool.query(
+            `SELECT f.movie_id, m.title, m.poster_path
+             FROM "Favorites" f
+             JOIN "Movies" m ON f.movie_id = m.id
+             WHERE f.user_id = $1`, 
+             [userId]);
         res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json({ message: 'Failed to load Favorites' });
@@ -17,16 +21,35 @@ router.get('/', authenticateUser, async (req, res) => {
 });
 
 router.post('/', authenticateUser, async (req, res) => {
+    console.log('Request Headers:', req.headers);
+    console.log('Request Body:', req.body);
+
     const userId = req.user.id;
-    const { movie_id } = req.body;
+    const { movieId } = req.body;
 
-    const share_uri = crypto.randomBytes(16).toString('hex');
+    console.log('Received movieId:', movieId);
+
+    const numericMovieId = Number(movieId);
+    console.log('Converted movieId:', numericMovieId);
+
+    if (!movieId || isNaN(movieId)) {
+        return res.status(400).json({ message: 'Invalid movie ID' });
+    }
+
     try {
-        const result = await pool.query(
-            'INSERT INTO "Favorites" (user_id, movie_id, share_uri) VALUES ($1, $2, $3) RETURNING *',
-            [userId, movie_id, share_uri]
+        const exists = await pool.query(
+            'SELECT 1 FROM "Favorites" WHERE user_id = $1 AND movie_id = $2',
+            [userId, numericMovieId]
         );
+        if (exists.rowCount > 0) {
+            return res.status(409).json({ message: 'Movie already in favorites' });
+        }
 
+        const result = await pool.query(
+            'INSERT INTO "Favorites" (user_id, movie_id) VALUES ($1, $2) RETURNING *',
+            [userId, numericMovieId]
+        );
+        console.log('Database result:', result.rows);
             res.status(201).json({
                 message: 'Movie added to favorites',
                 fav: result.rows[0],  
@@ -57,21 +80,45 @@ router.delete('/:movie_id', authenticateUser, async (req, res) => {
     }
 });
 
+router.patch('/public', authenticateUser, async (req, res) => {
+    const userId = req.user.id;
+    const { ispublic } = req.body;
 
-router.get('/public/:share_uri', async (req, res) => {
-    const { share_uri } = req.params;
+    try {
+        await pool.query(
+            'UPDATE "Favorites" SET public = $1 WHERE user_id = $2',
+            [ispublic, userId]
+        );
+
+        res.status(200).json({ message: `Favorites set to ${ispublic ? 'public' : 'private'}`});
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating visibility' });
+    }
+});
+
+router.get('/public/:userId', async (req, res) => {
+    const { userId } = req.params;
 
     try {
         const result = await pool.query(
-            'SELECT movie_id FROM "Favorites" WHERE share_uri = $1',
-            [share_uri]
+            'SELECT movie_id FROM "Favorites" WHERE user_id = $1 AND public = true',
+            [userId]
         );
 
+        console.log('Query result:', result.rows);
+
         if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'Favorites list not found' });
+            return res.status(404).json({ message: 'Favorites list not found or not public' });
         }
 
-        res.status(200).json(result.rows);
+        const movieIds = result.rows.map(row => row.movie_id);
+
+        const movieDetails = await pool.query(
+            'SELECT id, title, poster_path FROM "Movies" WHERE id = ANY($1)',
+            [movieIds]
+        );
+
+        res.status(200).json(movieDetails.rows);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching shared list' });
     }
