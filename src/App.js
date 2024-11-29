@@ -14,6 +14,8 @@ import GroupManagement from './components/groupManagement';
 import { isAuthenticated, logout } from './services/authService';
 import About from './pages/About.js';
 import Movies from './pages/Movies.js';
+import FavoritesPage from './components/Favorites';
+import PublicFavoritesPage from './components/PublicFavorites.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
@@ -39,10 +41,54 @@ function App() {
         <Routes>
         <Route path="/" element={<h1>Welcome to Cozy Couch</h1>} />
         <Route path="/movies" element={<Movies />} />
+        <h3>Search Movies</h3>
+
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              {isLoggedIn ? (
+                <button onClick={handleLogout}>Logout</button>
+              ) : (
+                <>
+                  <Link to="/login">Login</Link>
+                  <Link to="/register">Register</Link>
+                </>
+              )}
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <Routes>
+        {/* Public Route: Movies and Showtimes (always accessible) */}
+        <Route
+          path="/"
+          element={
+            <div>
+              <Showtimes />
+              <h1>Movies</h1>
+              <MoviePage />
+
+              {/* Conditionally render Group Management */}
+              {isLoggedIn && (
+                <>
+                  <hr />
+                  <h1>Your Groups</h1>
+                  <GroupManagement />
+
+                  <hr />
+                  <h1>Favorites</h1>
+                  <FavoritesPage />
+                </>
+              )}
+            </div>
+          }
+        />
         {/* Route for movie details */}
         <Route path='/movie/:id' element={<MovieDetails />} />
-
-        <Route path="/movie/:id" element={<MovieDetails />} />
         {/* Public Route: Login */}
         <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
         {/* Public Route: Register */}
@@ -50,6 +96,7 @@ function App() {
         <Route path="/groups/:groupId" element={<GroupManagement />} />
 
         <Route path="/about" element={<About />} />
+        <Route path="/favorites/public/:userId" element={<PublicFavoritesPage />} />
       </Routes>
     </div>
   );
