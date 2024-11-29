@@ -37,32 +37,11 @@ function App() {
   return (
     
       <div className="App">
-        <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        <Routes>
+      <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+      <Routes>
         <Route path="/" element={<h1>Welcome to Cozy Couch</h1>} />
         <Route path="/movies" element={<Movies />} />
-        <h3>Search Movies</h3>
 
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              {isLoggedIn ? (
-                <button onClick={handleLogout}>Logout</button>
-              ) : (
-                <>
-                  <Link to="/login">Login</Link>
-                  <Link to="/register">Register</Link>
-                </>
-              )}
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <Routes>
         {/* Public Route: Movies and Showtimes (always accessible) */}
         <Route
           path="/"
