@@ -90,8 +90,8 @@ const GroupManagement = ({requests}) => {
         try {
             const result = await createGroup(newGroupName);
             console.log('Group created:', result);
-            await loadGroups();
             setNewGroupName("");
+            setGroups((prevGroups) => [...prevGroups, result]); 
         } catch (error) {
             setError('Error creating group:' + error.message);
         }
@@ -114,20 +114,32 @@ const GroupManagement = ({requests}) => {
     };
 
     useEffect(() => {
-        if(groupDetails?.requests) {
+        if (groupDetails?.requests) {
             setUpdatedRequests(groupDetails.requests);
         }
     }, [groupDetails]);
 
     const handleResponse = async (userId, action) => {
         try {
-            const response = await respondedToReq(groupId, userId, action);
-            setStatus(`Action "${action}" completed for user ${userId}`);
-            console.log('Response to request:', response);
+            setStatus('Processing...');
+            setError('');
 
-            setUpdatedRequests(prevRequests => 
-                prevRequests.filter(request => request.userId !== userId)
-            );
+            const data = await respondedToReq(groupId, userId, action);
+
+            if (data.status === 'accepted') {
+                setGroupDetails((prevGroupDetails) => ({
+                    ...prevGroupDetails,
+                    members: [...prevGroupDetails.members, data.newMember], 
+                    requests: prevGroupDetails.requests.filter((request) => request.userId !== userId),
+                }));
+            } else {
+                setGroupDetails((prevGroupDetails) => ({
+                    ...prevGroupDetails,
+                    requests: prevGroupDetails.requests.filter((request) => request.userId !== userId),
+                }));
+            }
+
+            setStatus(`Action "${action}" completed for user ${userId}`);
             await loadGroupDetails();
         } catch (err) {
             setError(err.message);
@@ -180,16 +192,30 @@ const GroupManagement = ({requests}) => {
                         {error && <p style={{color: 'red'}}>{error}</p>}
                         {status && <p style={{ color: 'green' }}>{status}</p>}
                         <ul>
-                            {updatedRequests?.length > 0? (
-                                updatedRequests.map((request) => (
-                                    <li key={request.userId}>
-                                        <span>{request.userId}</span>
-                                        <div>
-                                            <button onClick={() => handleResponse(request.userId, 'accept')}>Accept</button>
-                                            <button onClick={() => handleResponse(request.userId, 'decline')}>Decline</button>
-                                        </div>
-                                    </li>
-                                ))
+                        {groupDetails?.requests ?.filter(request => request.status === 'pending').length > 0 ? (
+                                groupDetails.requests 
+                                .filter(request => request.status === 'pending')
+                                .map((request, index) => {
+                                    const key = request.id && request.userId 
+                                        ? `${request.id}-${request.userId}` 
+                                        : `${index}-${Math.random()}`; 
+
+                                    return (
+                                        <li key={key}>
+                                            <span>{request.userId}</span>
+                                            <div>
+                                                {request.status === 'pending' ? (
+                                                    <>
+                                                        <button onClick={() => handleResponse(request.userId, 'accept')}>Accept</button>
+                                                        <button onClick={() => handleResponse(request.userId, 'decline')}>Decline</button>
+                                                    </>
+                                                ) : (
+                                                    <span>{request.status}</span>
+                                                )}
+                                            </div>
+                                        </li>
+                                    );
+                                })
                             ) : (
                                 <p>No requests</p>
                             )}
@@ -198,20 +224,24 @@ const GroupManagement = ({requests}) => {
                 )}                   
                     <h3>Group Members</h3>
                     <ul>
-                        {groupDetails.members?.length > 0 ? (
-                            groupDetails.members.map((member) => (
-                                <li key={member.id}>
-                                    {member.name}
-                                    {isCreator && (
-                                        <button onClick={() => handleRemoveMember(member.id)}>
+                    {groupDetails.members?.length > 0 ? (
+                        groupDetails.members.map((member, index) => {
+                            const key = member.user_id ? `${member.user_id}-${groupDetails.id}` : `${index}-${Math.random()}`;
+
+                            return (
+                                <li key={key}>
+                                    {member.userId}
+                                    {isCreator && member.userId !== groupDetails.creator_id && (
+                                        <button onClick={() => handleRemoveMember(member.userId)}>
                                             Remove Member
                                         </button>
                                     )}
                                 </li>
-                            ))
-                        ) : (
-                            <div>No members yet</div>
-                        )}
+                            );
+                        })
+                    ) : (
+                        <div>No members yet</div>
+                    )}
                     </ul>
                     <button onClick={() => handleLeaving(groupDetails.id)}>
                         {isCreator ? "Delete Group" : "Leave Group"}
@@ -226,24 +256,6 @@ const GroupManagement = ({requests}) => {
             <ul>
                 {groups.filter((group) => group.status === 'creator').map((group) => (
                     <li key={group.id}  onClick={() => handleGroupClick(group.id)}>{group.name}</li>
-                ))}
-            </ul>
-
-            <h3>Groups You Are a Member Of</h3>
-            <ul>
-                {groups
-                    .filter((group) => group.status === 'member')
-                    .map((group) => (
-                        <li key={group.id} onClick={() => handleGroupClick(group.id)}>
-                            {group.name}
-                        </li>
-                ))}
-            </ul>
-
-            <h3>Groups with Pending Requests</h3>
-            <ul>
-                {groups.filter((group) => group.status === 'pending').map((group) => (
-                    <li key={group.id}>{group.name}</li>
                 ))}
             </ul>
                 <h3>Available Groups</h3>
