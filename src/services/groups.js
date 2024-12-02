@@ -1,32 +1,39 @@
+import { getToken } from "./authService";
+import { jwtDecode } from 'jwt-decode';
 
 const API_URL = 'http://localhost:3001/groups';
 
-function getUserId() {
-    return sessionStorage.getItem('userId');
+function getUserInfo() {
+    const token = getToken();
+    if (!token) {
+        throw new Error('User not authenticated');
+    }
+
+    try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token:", decoded); 
+        return decoded;
+    } catch (error) {
+        console.error('Invalid token:', error);
+        throw new Error('Failed to decode');
+    }
 }
 
 export const fetchGroups = async () => {
-    const userId = getUserId();
-    if (!userId) {
+    const token = getToken();
+    if (!token) {
         console.error('Cannot fetch groups: user is not authenticated.');
         throw new Error('User is not authenticated');
     }
-    console.log('Fetching groups with userId:', userId); 
 
-    const headers = {
-        'Content-Type': 'application/json',
-        'user-id': userId,
-    };
-
-    console.log('Request headers:', headers);
     const response = await fetch(`${API_URL}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'user-id': userId,
+            'Authorization': `Bearer ${token}`,      
         },
     });
-
+    console.log('Response:', response);
     console.log('Request Headers:', response.headers);
 
     if (!response.ok) {
@@ -37,27 +44,44 @@ export const fetchGroups = async () => {
     const data = await response.json();
     console.log('Groups fetched:', data);
 
-    if (data.length === 0) {
-        console.log('User has no groups'); // Log this case for debugging
+    if (!data.userGroups || !data.availableGroups) {
+        console.error('API response missing userGroups or availableGroups');
+        throw new Error('API response format is incorrect');
     }
 
-    return data;
+    return {
+        groups: data.userGroups,        // Groups the user is a creator of or a member of
+        availableGroups: data.availableGroups,  // Groups that are available to join
+    };
 };
 
 export const fetchGroupDetails = async (groupId) => {
-    console.log('Fetching group details for ID:', groupId);
-    const userId = getUserId();
-
-    if (!userId) {
+    const token = getToken();
+    if (!token) {
+        console.error('Cannot fetch groups: user is not authenticated.');
         throw new Error('User is not authenticated');
     }
+    let userId;
+    try {
+        const userInfo = getUserInfo();
+        console.log('User Info:', userInfo); 
+        userId = userInfo?.id;
+        console.log('Decoded userId:', userId);
+        if (!userId) {
+            throw new Error('user id missing');
+        }
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        throw new Error('Failed to decode token or fetch user info');
+    }
+
     try {
         console.log('API Call URL:', `${API_URL}/${groupId}`);
         const response = await fetch(`${API_URL}/${groupId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'user-id': userId,
+                'Authorization': `Bearer ${token}`,
             },
         });
         if (!response.ok) {
@@ -73,30 +97,41 @@ export const fetchGroupDetails = async (groupId) => {
 };
 
 export const createGroup = async (name) => {
-    const userId = getUserId();
+    const token = getToken();
+    if (!token) {
+        console.error('Cannot fetch groups: user is not authenticated.');
+        throw new Error('User is not authenticated');
+    }
 
     const response = await fetch(`${API_URL}/create`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'user-id': userId,
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ name }),
     });
     if (!response.ok) {
-        throw new Error('Something went wrong');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Something went wrong');
     }
     return await response.json();
 };
 
 export const deleteGroup = async (groupId) => {
-    const userId = getUserId();
-
+    const token = getToken();
+    if (!token) {
+        console.error('Cannot fetch groups: user is not authenticated.');
+        throw new Error('User is not authenticated');
+    }
+    const { userId } = getUserInfo();
+    console.log("Sending request with token:", token);
+    
     const response = await fetch(`${API_URL}/${groupId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'user-id': userId,
+            'Authorization': `Bearer ${token}`,
         },
     });
     if (!response.ok) {
@@ -106,14 +141,18 @@ export const deleteGroup = async (groupId) => {
 };
 
 export const sendJoinReq = async (groupId) => {
-    const userId = getUserId();
-    console.log('User ID:', userId); 
+    const token = getToken();
+    if (!token) {
+        console.error('Cannot fetch groups: user is not authenticated.');
+        throw new Error('User is not authenticated');
+    }
+    const { userId } = getUserInfo(); 
     
     const response = await fetch(`${API_URL}/${groupId}/request`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'user-id': userId,
+            'Authorization': `Bearer ${token}`,
         },
     });
     if (!response.ok) {
@@ -125,12 +164,17 @@ export const sendJoinReq = async (groupId) => {
 };
 
 export const respondedToReq = async (groupId, userId, action) => {
-    const creatorId = getUserId();
+    const token = getToken();
+    if (!token) {
+        console.error('Cannot fetch groups: user is not authenticated.');
+        throw new Error('User is not authenticated');
+    }
+
     const response = await fetch(`${API_URL}/${groupId}/answer/${userId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'user-id': creatorId,
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ action }),
     });
@@ -141,12 +185,17 @@ export const respondedToReq = async (groupId, userId, action) => {
 };
 
 export const removeUser = async (groupId, userId) => {
-    const creatorId = getUserId();
+    const token = getToken();
+    if (!token) {
+        console.error('Cannot fetch groups: user is not authenticated.');
+        throw new Error('User is not authenticated');
+    }
+
     const response = await fetch(`${API_URL}/${groupId}/user/${userId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'user-id': creatorId,
+            'Authorization': `Bearer ${token}`,
         },
     });
     if (!response.ok) {
@@ -156,13 +205,18 @@ export const removeUser = async (groupId, userId) => {
 };
 
 export const leaveGroup = async (groupId) => {
-    const userId = getUserId();
+    const token = getToken();
+    if (!token) {
+        console.error('Cannot fetch groups: user is not authenticated.');
+        throw new Error('User is not authenticated');
+    }
+    const { userId } = getUserInfo();
     
     const response = await fetch(`${API_URL}/${groupId}/member`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'user-id': userId,
+            'Authorization': `Bearer ${token}`,
         },
     });
     if (!response.ok) {

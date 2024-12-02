@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { createGroup, fetchGroupDetails, fetchGroups, leaveGroup, removeUser, sendJoinReq } from "../services/groups";
-import { getUserId } from "../services/authService";
+import { createGroup, fetchGroupDetails, fetchGroups, leaveGroup, removeUser, respondedToReq, sendJoinReq } from "../services/groups";
+import { getToken } from "../services/authService";
+import { jwtDecode } from "jwt-decode";
 
-const GroupManagement = () => {
+const GroupManagement = ({requests}) => {
     const navigate = useNavigate();
     const { groupId } = useParams();
     const [groupDetails, setGroupDetails]  = useState(null);
@@ -11,11 +12,27 @@ const GroupManagement = () => {
     const [newGroupName, setNewGroupName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [status, setStatus] = useState(null);
+    const [updatedRequests, setUpdatedRequests] = useState(groupDetails?.requests || []);
+    const [availableGroups, setAvailableGroups] = useState([]);
     
+    const token = getToken();
+
+    const getUserId = () => {
+        const token = getToken();
+        try {
+            const decoded = jwtDecode(token);
+            return decoded?.id || null;
+        } catch (err) {
+            console.error("Error decoding token:", err);
+            return null;
+        }
+    }
     const userId = getUserId();
+    const isCreator = groupDetails?.creator_id === userId;
 
     useEffect(() => { 
-        if (!userId) {
+        if (!token) {
           setError("You need to log in first");
           return;
         }
@@ -37,22 +54,21 @@ const GroupManagement = () => {
         };
 
         loadData();  // Invoke the loadData function inside useEffect
-    }, [groupId, userId]);
+    }, [groupId, token]);
 
-    const loadGroups = async () => {
-        try {
-            const groupsData = await fetchGroups(userId); 
-            console.log("Fetched groups:", groupsData);
-
-            const uniqueGroups = Array.from(new Set(groupsData.map(group => group.id)))
-            .map(id => groupsData.find(group => group.id === id));
-
-        setGroups(uniqueGroups);
-        } catch (error) {
-            console.error("Error fetching groups:", error);
-            setError("Error fetching groups.");
-        }
-    };
+        const loadGroups = async () => {
+            try {
+                console.log('Fetching groups...');
+                const groupsData = await fetchGroups(); 
+                console.log("Fetched groups:", groupsData);
+                setGroups(groupsData.groups || []);
+                console.log("Updated groups state:", groups);
+                setAvailableGroups(groupsData.availableGroups || []);
+            } catch (error) {
+                console.error("Error fetching groups:", error);
+                setError("Error fetching groups.");
+            }
+        };
 
     const loadGroupDetails = async () => {
         try {
@@ -60,6 +76,10 @@ const GroupManagement = () => {
             const result = await fetchGroupDetails(groupId);
             console.log('Fetched group details:', result);
             setGroupDetails(result);
+            // Update requests if they exist
+            if (result.requests) {
+                setUpdatedRequests(result.requests);
+            }
         } catch (error) {
             console.error('Error fetching group info:', error);
             setError('Error fetching group info:' + error.message);
@@ -68,30 +88,56 @@ const GroupManagement = () => {
 
     const handleCreateGroup = async () => {
         try {
-            await createGroup(newGroupName, userId);
+            const result = await createGroup(newGroupName);
+            console.log('Group created:', result);
             await loadGroups();
             setNewGroupName("");
         } catch (error) {
             setError('Error creating group:' + error.message);
-            setError("Error creating group.");
         }
     };
 
     const handleJoin = async (groupId) => {
         try {
             console.log('Joining groupId:', groupId);
-            await sendJoinReq(groupId, userId);
+            await sendJoinReq(groupId);
             console.log('Joined group successfully');
-            await loadGroups(); // Refresh the group list
+            setAvailableGroups((prevGroups) => 
+                prevGroups.map((group) => 
+                    group.id === groupId ? { ...group, request_status: 'pending' } : group
+                )
+            );
         } catch (error) {
             console.error('Error joining group:', error);
             setError('Error joining group: ' + error.message);
         }
     };
 
+    useEffect(() => {
+        if(groupDetails?.requests) {
+            setUpdatedRequests(groupDetails.requests);
+        }
+    }, [groupDetails]);
+
+    const handleResponse = async (userId, action) => {
+        try {
+            const response = await respondedToReq(groupId, userId, action);
+            setStatus(`Action "${action}" completed for user ${userId}`);
+            console.log('Response to request:', response);
+
+            setUpdatedRequests(prevRequests => 
+                prevRequests.filter(request => request.userId !== userId)
+            );
+            await loadGroupDetails();
+        } catch (err) {
+            setError(err.message);
+            console.error('Error responding to req:', err);
+        }
+    };
+
     const handleLeaving = async (groupId) => {
         try {
-            await leaveGroup(groupId, userId);
+            await leaveGroup(groupId, token);
             await loadGroups();
         } catch (error) {
             setError('Error: ' + error.message);
@@ -107,7 +153,9 @@ const GroupManagement = () => {
         }
     };
 
-    const isCreator = groupDetails?.creator_id === userId;
+    const handleGroupClick = (groupId) => {
+        navigate(`/groups/${groupId}`);  // Navigate to group details page
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -125,6 +173,30 @@ const GroupManagement = () => {
                     <h2>Group Info</h2>
                     <p>Name: {groupDetails.name}</p>
                     <p>Creator: {groupDetails.creator_id}</p>
+
+                {isCreator && (
+                    <div>
+                        <h3>Join Requests</h3>
+                        {error && <p style={{color: 'red'}}>{error}</p>}
+                        {status && <p style={{ color: 'green' }}>{status}</p>}
+                        <ul>
+                            {updatedRequests?.length > 0? (
+                                updatedRequests.map((request) => (
+                                    <li key={request.userId}>
+                                        <span>{request.userId}</span>
+                                        <div>
+                                            <button onClick={() => handleResponse(request.userId, 'accept')}>Accept</button>
+                                            <button onClick={() => handleResponse(request.userId, 'decline')}>Decline</button>
+                                        </div>
+                                    </li>
+                                ))
+                            ) : (
+                                <p>No requests</p>
+                            )}
+                        </ul>
+                    </div>
+                )}                   
+                    <h3>Group Members</h3>
                     <ul>
                         {groupDetails.members?.length > 0 ? (
                             groupDetails.members.map((member) => (
@@ -150,18 +222,42 @@ const GroupManagement = () => {
                 // Group List View
                 <div>
                     <h2>Your Groups</h2>
+                    <h3>Groups You Created</h3>
+            <ul>
+                {groups.filter((group) => group.status === 'creator').map((group) => (
+                    <li key={group.id}  onClick={() => handleGroupClick(group.id)}>{group.name}</li>
+                ))}
+            </ul>
+
+            <h3>Groups You Are a Member Of</h3>
+            <ul>
+                {groups
+                    .filter((group) => group.status === 'member')
+                    .map((group) => (
+                        <li key={group.id} onClick={() => handleGroupClick(group.id)}>
+                            {group.name}
+                        </li>
+                ))}
+            </ul>
+
+            <h3>Groups with Pending Requests</h3>
+            <ul>
+                {groups.filter((group) => group.status === 'pending').map((group) => (
+                    <li key={group.id}>{group.name}</li>
+                ))}
+            </ul>
+                <h3>Available Groups</h3>
                     <ul>
-                        {groups.length > 0 ? (
-                            groups.map((group, index) => (
-                                <li key={`${group.id}-${index}`}>
-                                    <Link to={`/groups/${group.id}`}>{group.name}</Link>
-                                    <button onClick={() => handleJoin(group.id)}>Join</button>
-                                </li>
-                            ))
-                        ) : (
-                            <div>You have no groups.</div>
-                        )}
+                    {availableGroups.map((group) => (
+                    <li key={group.id}>
+                        {group.name}
+                        <button onClick={() => handleJoin(group.id)}>
+                            {group.request_status === 'available' ? 'Request to Join' : 'pending'}
+                        </button>
+                    </li>
+                ))}
                     </ul>
+
                     <h2>Create a New Group</h2>
                     <input
                         type="text"
@@ -172,7 +268,9 @@ const GroupManagement = () => {
                     <button onClick={handleCreateGroup}>Create Group</button>
                 </div>
             )}
+
         </div>
+
     );
 };
 export default GroupManagement;

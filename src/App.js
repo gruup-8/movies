@@ -86,6 +86,7 @@ function App() {
         <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
         {/* Public Route: Register */}
         <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
+        <Route path="/" element={<GroupManagement />} />
         <Route path="/groups/:groupId" element={<GroupManagement />} />
         <Route path="/favorites/public/:userId" element={<PublicFavoritesPage />} />
       </Routes>
