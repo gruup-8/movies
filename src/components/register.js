@@ -8,8 +8,11 @@ function RegisterForm() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        console.log('Email:', email); 
+        console.log('Password:', password);
         try {
-            await registerScreen(email, password);
+            const user = await registerScreen(email, password);
+            console.log('user registered: ', user);
             alert('Registered successfully');
         } catch (error) {
             alert(`Error: ${error.message}`);

@@ -1,33 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { deleteFromList, favoriteList, getShareLink, visibilityManager } from "../services/favorites";
-import { useParams } from "react-router-dom";
+import {jwtDecode} from 'jwt-decode';
+import { getDecodedToken, getToken, isAuthenticated } from "../services/authService";
 
 const FavoritesPage = () => {
-    console.log('FavoritesPage Component Rendered');
+    //console.log('FavoritesPage Component Rendered');
     const [favorites, setFavorites] = useState([]);
     const [error, setError] =  useState(null);
     const [isPublic, setIsPublic] = useState(false);
     const [shareLink, setShareLink] = useState('');
     const [message, setMessage] = useState('');
-    const userId = sessionStorage.getItem('userId');
+    const [userId, setUserId] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        console.log('UserId from useParams:', userId);
-        async function fetchFavorites() {
-            console.log('Fetching favorites...');
-            console.log('UserId from URL:', userId);
+        const token = getToken();
+        //console.log('Token:', token);
+
+        if (token && isAuthenticated()) {
             try {
-                const data = await favoriteList();
-                console.log('Fetched favorites:', data);
-                setFavorites(data);
-            } catch (err) {
-                setError(err.message);
+                const decodedToken = getDecodedToken();
+                setUserId(decodedToken.id);
+                //console.log('decoded user id:', decodedToken.id);
+            } catch (error) {
+                console.log('Failed to decode:', error);
+                setError('Invalid token');
             }
-        };
-        if (userId) {
+        } else  {
+            console.log('User not logged in');
+            setError('Log in to access favorites');
+        }
+        setLoading(false); 
+    }, []);
+
+    useEffect(() => {
+         if (userId) {
+            async function fetchFavorites() {
+                //console.log('Fetching favorites for userId:', userId);
+                try {
+                    const data = await favoriteList();
+                    //console.log('Fetched favorites:', data);
+                    setFavorites(data);
+                } catch (err) {
+                    setError(err.message);
+                }
+            }
             fetchFavorites();
         }
-        
     }, [userId]);
 
     const handleDelete = async (movieId) => {
@@ -51,13 +70,15 @@ const FavoritesPage = () => {
 
     const handleSharing = async () => {
         try {
-            const data = await getShareLink(userId);
+            const data = await getShareLink();
             setShareLink(data);
-            console.log('Generated shareable link:', `http://localhost:3000/favorites/public/${userId}`);
+            //console.log('Generated shareable link:', `http://localhost:3000/favorites/public/share/${userId}`);
         } catch (err) {
             setMessage(err.message);
         }
     };
+
+    if (loading) return <p>Loading...</p>;
 
     if (error) return <p>Error: {error}</p>;
 
@@ -67,9 +88,11 @@ const FavoritesPage = () => {
             {favorites.length === 0 ? (
                 <p>No favorites added yet.</p>
             ) : (
+                
                 <ul>
+                    {/* Shows movie poster in a favorites window */}
                     {favorites.map((favorite) => {
-                        console.log('Rendering favorite:', favorite);
+                        //console.log('Rendering favorite:', favorite);
                         return (
                         <li key={favorite.movie_id}>
                             <h3>{favorite.title}</h3>

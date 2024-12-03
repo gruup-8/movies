@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { getUserId } from './authService';
+import { saveToken } from './authService';
 
-export async function loginScreen(email, password) {
+export async function loginScreen(email, password, rememberMe) {
     try {
         const response = await fetch('http://localhost:3001/users/login', {
             method: 'POST',
@@ -13,28 +13,21 @@ export async function loginScreen(email, password) {
 
         const data = await response.json();
         console.log('Login response:', data);
-        console.log('User object in response:', data.user);
 
         if (response.ok) {
-            const userId = data.user.id;
-            const userEmail = data.user.email;
-            console.log('Extracted userId:', userId);
-            console.log('Extracted userEmail:', userEmail);
-
-            if (userId === undefined || userId === null) {
-                    console.error('No userId found in login response:', data);
-                    throw new Error('Login response is missing userId');
-            }
-            
-            sessionStorage.setItem('userId', userId);
-            sessionStorage.setItem('userEmail', userEmail);
-            console.log('SessionStorage userId:', sessionStorage.getItem('userId'));
-            console.log('SessionStorage userEmail:', sessionStorage.getItem('userEmail'));
-            return data;
+            const { token } = data;  // Use the data you already parsed
+            //console.log('Extracted userId:', userId);
+            saveToken(token, rememberMe);
+            //console.log('SessionStorage userId:', sessionStorage.getItem('userId'));
+            console.log('token saved in sessionStorage:', token);
+            return token;
         } else {
             console.error('Login failed:', data.message); // Debug log
             throw new Error(`Login failed: ${data.message}`);
         }
+
+        //console.log('SessionStorage userId:', sessionStorage.getItem('userId'));
+        //console.log('Extracted userId:', userId);
     } catch (error) {
         console.error('Error logging in:', error);
         throw error;
@@ -42,6 +35,9 @@ export async function loginScreen(email, password) {
 }
 
 export async function registerScreen(email, password) {
+    console.log("Registering with email:", email); // Debugging line
+    console.log("Registering with password:", password); // Debugging line
+
     try {
         const response = await fetch('http://localhost:3001/users/register', {
             method: 'POST',
@@ -54,7 +50,14 @@ export async function registerScreen(email, password) {
         const data = await response.json();
 
         if (response.ok) {
-            console.log('Registered successfully: ', data);
+            const { token, user } = data;
+            console.log('Registered successfully: ', user);
+
+            if (token) {
+                saveToken(token);
+                console.log('Token saved', token);
+            }
+            return user;
         } else {
             throw new Error(`Registration failed: ${data.message}`);
         }
