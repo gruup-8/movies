@@ -1,3 +1,5 @@
+import { getToken } from "./authService";
+
 const BASE_URL = 'http://localhost:3001';
 
 // Fetch reviews for a movie
@@ -25,14 +27,18 @@ export const fetchReviews = async() => {
 
 // Post a new review
 export const postReview = async (movie_id, stars, comment) => {
-  const userId = sessionStorage.getItem('userId');
-  console.log('Sending review:', { movie_id, stars, comment, userId });
-  console.log('userId:',userId);
+  const token = getToken();
+
+    if (!token) {
+        throw new Error('User is not authenticated');
+    }
+
+  console.log('Sending review:', { movie_id, stars, comment, token });
         const response = await fetch(`${BASE_URL}/review`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'user-id': userId,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ movie_id, stars, comment }),
       });

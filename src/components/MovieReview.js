@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { fetchReviews, postReview } from "../services/reviewApi";
-import { getUserId } from "../services/authService";
+import { getToken } from "../services/authService";
 
 const MovieReview = ({ movieId }) => {
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({movie_id: "", stars: "", comment: "" });
-  const userId = getUserId();
+  const token = getToken();
 
   useEffect(() => {
     const loadReviews = async () => {

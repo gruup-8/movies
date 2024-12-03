@@ -40,7 +40,7 @@ function App() {
       <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
       <Routes>
         <Route path="/" element={<h1>Welcome to Cozy Couch</h1>} />
-        <Route path="/movies" element={<Movies />} />
+        <Route path="/movies/*" element={<Movies />} />
 
         {/* Public Route: Movies and Showtimes (always accessible) */}
         <Route
