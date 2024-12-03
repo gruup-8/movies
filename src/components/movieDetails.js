@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { addFavorites } from '../services/favorites';
 import AddToGroupPage from './addToGroupPage';
-
+import MovieReview from './MovieReview';
 
 const MovieDetails = () => {
     const { id } = useParams();
@@ -63,6 +63,8 @@ const MovieDetails = () => {
             <p><strong>IMDB ID:</strong> <a href={`https://www.imdb.com/title/${movie.imdb_id}`} target="_blank" rel="noopener noreferrer">Link</a></p>
             <a href={movie.homepage} target="_blank" rel="noopener noreferrer">Official Website</a>
             <AddToGroupPage movieId={id}/>
+            <MovieReview movieId={id} />
+
         </div>
     );
 };

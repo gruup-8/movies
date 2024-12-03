@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { loginScreen } from "../services/user";
+import '../styles/Login.css';
 
 function LoginForm({ onLogin }) {
     const [email, setEmail] = useState('');
@@ -17,7 +18,11 @@ function LoginForm({ onLogin }) {
     };
 
     return (
-        <form onSubmit={handleLogin}>
+        <div className="login">
+            <h1>Login</h1>
+        <form className="login-form" onSubmit={handleLogin}>
+            <div className="form-group">
+            <label>Email</label>
             <input
             type='email'
             placeholder='Email'
@@ -25,6 +30,9 @@ function LoginForm({ onLogin }) {
             onChange={(e) => setEmail(e.target.value)}
             required
             />
+            </div>
+            <div className="form-group">
+            <label>Password</label>
             <input
             type='password'
             placeholder='Password'
@@ -32,8 +40,14 @@ function LoginForm({ onLogin }) {
             onChange={(e) => setPassword(e.target.value)}
             required
             />
-            <button type='submit'>Login</button>
+            </div>
+            <button type='submit' className="login-button">Login</button>
         </form>
+        <div className="register-link">
+            <p>Don't have an account?</p>
+            <a href="/register">Register</a>
+        </div>
+        </div>
     );
 }
 
