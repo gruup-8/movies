@@ -17,7 +17,7 @@ const MoviePage = () => {
         throw new Error('Failed to fetch genres');
       }
       const data = await response.json();
-      console.log("Fetched genres:", data); 
+      //console.log("Fetched genres:", data); 
       setGenre(data);
     } catch (err) {
       console.error('Error fetching genres: ', err);

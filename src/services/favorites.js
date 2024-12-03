@@ -25,7 +25,7 @@ export const favoriteList = async () => {
     }
 
     const { userId } = getUserInfo();
-    console.log('Fetching favorites list for user:', userId);
+    //console.log('Fetching favorites list for user:', userId);
 
     try {
         const response = await fetch(`${API_URL}`, {
@@ -35,8 +35,8 @@ export const favoriteList = async () => {
                 'Authorization': `Bearer ${token}`,
             },
         });
-        console.log('Request Headers:', response.headers); 
-        console.log('Response Status:', response.status);
+        //console.log('Request Headers:', response.headers); 
+        //console.log('Response Status:', response.status);
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -45,7 +45,7 @@ export const favoriteList = async () => {
         }
 
         const data = await response.json();
-        console.log('Favorites list fetched:', data);
+        //console.log('Favorites list fetched:', data);
     
         if (data.length === 0) {
             console.log('User has no favorites'); // Log this case for debugging
@@ -62,7 +62,7 @@ export const favoriteList = async () => {
 export const addFavorites = async (movieId) => {
     const token = getToken();
 
-    console.log('Sending request to add favorite:', { token, movieId });
+    //console.log('Sending request to add favorite:', { token, movieId });
 
     if (!token) {
         throw new Error('User is not authenticated');
@@ -73,7 +73,7 @@ export const addFavorites = async (movieId) => {
         throw new Error('Movie ID is required');
     }
     const { userId } = getUserInfo();
-    console.log('Fetching favorites list for user:', userId);
+    //console.log('Fetching favorites list for user:', userId);
 
     const numericMovieId = Number(movieId); 
 
@@ -90,7 +90,7 @@ export const addFavorites = async (movieId) => {
         throw new Error('Something went wrong');
     }
     const data = await response.json();
-    console.log('Successfully added favorite:', data); // Log success response
+    //console.log('Successfully added favorite:', data); // Log success response
     return data;
 };
 
@@ -100,7 +100,7 @@ export const deleteFromList = async (movieId) => {
     if (!token) throw new Error('User is not authenticated');
 
     const { userId } = getUserInfo();
-    console.log('Fetching favorites list for user:', userId);
+    //console.log('Fetching favorites list for user:', userId);
 
     const response = await fetch(`${API_URL}/${movieId}`, {
         method: 'DELETE',
@@ -120,7 +120,7 @@ export const visibilityManager = async (ispublic) => {
     if (!token) throw new Error('User is not authenticated');
 
     const { userId } = getUserInfo();
-    console.log('Fetching favorites list for user:', userId);
+    //console.log('Fetching favorites list for user:', userId);
 
     const response = await fetch(`${API_URL}/public`, {
         method: 'PATCH',

@@ -4,7 +4,7 @@ import {jwtDecode} from 'jwt-decode';
 import { getDecodedToken, getToken, isAuthenticated } from "../services/authService";
 
 const FavoritesPage = () => {
-    console.log('FavoritesPage Component Rendered');
+    //console.log('FavoritesPage Component Rendered');
     const [favorites, setFavorites] = useState([]);
     const [error, setError] =  useState(null);
     const [isPublic, setIsPublic] = useState(false);
@@ -15,13 +15,13 @@ const FavoritesPage = () => {
 
     useEffect(() => {
         const token = getToken();
-        console.log('Token:', token);
+        //console.log('Token:', token);
 
         if (token && isAuthenticated()) {
             try {
                 const decodedToken = getDecodedToken();
                 setUserId(decodedToken.id);
-                console.log('decoded user id:', decodedToken.id);
+                //console.log('decoded user id:', decodedToken.id);
             } catch (error) {
                 console.log('Failed to decode:', error);
                 setError('Invalid token');
@@ -36,10 +36,10 @@ const FavoritesPage = () => {
     useEffect(() => {
          if (userId) {
             async function fetchFavorites() {
-                console.log('Fetching favorites for userId:', userId);
+                //console.log('Fetching favorites for userId:', userId);
                 try {
                     const data = await favoriteList();
-                    console.log('Fetched favorites:', data);
+                    //console.log('Fetched favorites:', data);
                     setFavorites(data);
                 } catch (err) {
                     setError(err.message);
@@ -72,7 +72,7 @@ const FavoritesPage = () => {
         try {
             const data = await getShareLink();
             setShareLink(data);
-            console.log('Generated shareable link:', `http://localhost:3000/favorites/public/share/${userId}`);
+            //console.log('Generated shareable link:', `http://localhost:3000/favorites/public/share/${userId}`);
         } catch (err) {
             setMessage(err.message);
         }
@@ -88,9 +88,11 @@ const FavoritesPage = () => {
             {favorites.length === 0 ? (
                 <p>No favorites added yet.</p>
             ) : (
+                
                 <ul>
+                    {/* Shows movie poster in a favorites window */}
                     {favorites.map((favorite) => {
-                        console.log('Rendering favorite:', favorite);
+                        //console.log('Rendering favorite:', favorite);
                         return (
                         <li key={favorite.movie_id}>
                             <h3>{favorite.title}</h3>

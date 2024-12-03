@@ -11,7 +11,7 @@ function getUserInfo() {
 
     try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded); 
+        //console.log("Decoded token:", decoded); // DEBUGGING
         return decoded;
     } catch (error) {
         console.error('Invalid token:', error);
@@ -33,8 +33,8 @@ export const fetchGroups = async () => {
             'Authorization': `Bearer ${token}`,      
         },
     });
-    console.log('Response:', response);
-    console.log('Request Headers:', response.headers);
+    //console.log('Response:', response);
+    //console.log('Request Headers:', response.headers);
 
     if (!response.ok) {
         const errorData = await response.json();
@@ -42,7 +42,7 @@ export const fetchGroups = async () => {
         throw new Error(errorData.message || 'Failed to fetch groups');
     }
     const data = await response.json();
-    console.log('Groups fetched:', data);
+    //console.log('Groups fetched:', data);
 
     if (!data.userGroups || !data.availableGroups) {
         console.error('API response missing userGroups or availableGroups');
@@ -64,9 +64,9 @@ export const fetchGroupDetails = async (groupId) => {
     let userId;
     try {
         const userInfo = getUserInfo();
-        console.log('User Info:', userInfo); 
+        //console.log('User Info:', userInfo); // DEBUGGING
         userId = userInfo?.id;
-        console.log('Decoded userId:', userId);
+        //console.log('Decoded userId:', userId);   // DEBUGGING
         if (!userId) {
             throw new Error('user id missing');
         }
@@ -76,7 +76,7 @@ export const fetchGroupDetails = async (groupId) => {
     }
 
     try {
-        console.log('API Call URL:', `${API_URL}/${groupId}`);
+        //console.log('API Call URL:', `${API_URL}/${groupId}`); // DEBUGGING
         const response = await fetch(`${API_URL}/${groupId}`, {
             method: 'GET',
             headers: {
@@ -125,7 +125,7 @@ export const deleteGroup = async (groupId) => {
         throw new Error('User is not authenticated');
     }
     const { userId } = getUserInfo();
-    console.log("Sending request with token:", token);
+    //console.log("Sending request with token:", token);
     
     const response = await fetch(`${API_URL}/${groupId}`, {
         method: 'DELETE',
