@@ -181,7 +181,9 @@ export const respondedToReq = async (groupId, userId, action) => {
     if (!response.ok) {
         throw new Error('Something went wrong');
     }
-    return response.json();
+    const data = await response.json(); 
+    console.log('API response:', data);
+    return data;
 };
 
 export const removeUser = async (groupId, userId) => {
