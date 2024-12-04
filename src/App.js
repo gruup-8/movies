@@ -5,7 +5,7 @@ import MovieList from './components/MovieList';
 import GenreDropdown from './components/GenreDropdown';
 import Pagination from './components/Pagination';
 import MoviePage from './services/api';
-import Showtimes from './components/showtimes';
+import Showtimes from './components/showtimes.js';
 import MovieDetails from './components/movieDetails';
 import LoginForm from './components/login';
 import RegisterForm from './components/register';

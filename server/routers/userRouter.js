@@ -7,8 +7,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const SECRET_KEY = process.env.JWT_SECRET_KEY;
 const router = Router();
+const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 router.get('/me', authenticateUser, async (req, res) => {
     const userId = req.user.id;
@@ -53,9 +53,7 @@ router.post('/register', async (req,res) => {
         console.log("SQL query result:", result); 
         const user = result.rows[0];
         console.log('User inserted:', user);
-        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-        console.log('Generated token:', token);
-        res.status(201).json({ message: 'User registered successfully', user, token });
+        res.status(201).json({ message: 'User registered successfully', user });
     } catch (error) {
         res.status(500).json({ message: 'Error registering user' });
     }
@@ -83,14 +81,39 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '1h'});
-        res.status(200).json({ token });
+        const accessToken = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '15m'});
+
+        res.status(200).json({ accessToken });
     } catch (error) {
         res.status(500).json({ message: 'Error logging in user' });
     }
 });
 
-router.delete('/delete', authenticateUser, async (req, res) => {
+router.post('/logout', async (req, res) => {
+
+    console.log('Cookies in request:', req.cookies);
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+        return res.status(400).json({ message: 'Refresh token needed' });
+    }
+
+    try {
+        const decoded = jwt.verify(refreshToken, REFRESH_KEY);
+        console.log('Decoded refresh token:', decoded);
+
+        await pool.query('UPDATE "Users" SET refresh_token = NULL WHERE refresh_token = $1', [refreshToken]);
+
+        res.clearCookie('refreshToken');
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Error during logout:', error);
+        res.status(500).json({ message: 'Error logging out user' });
+    }
+});
+
+router.use(authenticateUser);
+router.delete('/delete', async (req, res) => {
     const userId = req.user.id;
 
     try {
