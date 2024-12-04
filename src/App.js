@@ -41,6 +41,7 @@ function App() {
       <Routes>
         <Route path="/" element={<h1>Welcome to Cozy Couch</h1>} />
         <Route path="/movies/*" element={<Movies />} />
+        <Route path='/showtimes/*' element={<Showtimes />} />
 
         {/* Public Route: Movies and Showtimes (always accessible) */}
         <Route
@@ -74,7 +75,7 @@ function App() {
         <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
         <Route path="/" element={<GroupManagement />} />
         <Route path="/groups/:groupId" element={<GroupManagement />} />
-
+        <Route path="/profile" element={<FavoritesPage />} />
         <Route path="/about" element={<About />} />
         <Route path="/favorites/public/:userId" element={<PublicFavoritesPage />} />
       </Routes>
