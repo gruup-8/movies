@@ -48,7 +48,7 @@ const MovieReview = ({ movieId }) => {
       <h3>Reviews</h3>
       {reviews.length > 0 ? (
         reviews.map((review) => (
-          <div key={review.id}>
+          <div key={review.movie_id}>
             {review.movie_id}
             <p>{review.stars} ★</p>
             <p>{review.comment}</p>
