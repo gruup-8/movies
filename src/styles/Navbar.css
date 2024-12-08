@@ -15,7 +15,7 @@
     list-style: none;
     display: flex;
     gap: 20px;
-    
+
 }
 
 .nav-links a {
@@ -23,11 +23,12 @@
     color: #fcfcfc;
     padding: 5px 10px;
     border-radius: 5px;
+    background-color: #001a66;
     transition: background-color 0.3s;
 }
 
 .nav-links li a:hover {
-    background-color: #ddd;
+    background-color: #0033cc;
 }
 
 .auth-links button {

@@ -101,3 +101,61 @@ ul.react-paginate li.disable,
 ul.react-paginate li.disabled a {
   cursor: default;
 }
+
+/* Search bar container */
+.movie-page input[type="text"] {
+    width: 60%;
+    padding: 10px 15px;
+    border-radius: 25px;
+    border: 1px solid #000E4B;
+    outline: none;
+    font-size: 1rem;
+    background-color: #001a66;
+    color: #ffffff;
+}
+
+/* Search button styling */
+.movie-page button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 25px;
+    border: none;
+    background-color: #001a66;
+    color: #ffffff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Search bar hover and focus effect */
+.movie-page input[type="text"]:hover,
+.movie-page input[type="text"]:focus {
+    background-color: #0033cc;
+    border-color: #0056b3;
+    color: #ffffff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Button hover effect */
+.movie-page button:hover {
+    background-color: #0033cc;
+}
+
+/* Genre dropdown styling */
+.movie-page select {
+    width: 60%;
+    padding: 10px 15px;
+    border-radius: 25px;
+    border: 1px solid #000E4B;
+    outline: none;
+    font-size: 1rem;
+    background-color: #001a66;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect for the dropdown */
+.movie-page select:hover {
+    background-color: #0033cc;
+}
