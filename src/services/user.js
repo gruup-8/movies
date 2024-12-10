@@ -83,13 +83,14 @@ export async function deleteUser(userId, token) {
         const data = await response.json();
 
         if (response.ok) {
-            sessionStorage.removeItem('userId');
+            sessionStorage.removeItem('userId'); // Clear stored userId
+            console.log('User deleted successfully:', data);
             return data;
         } else {
             throw new Error(`Deleting account failed: ${data.message}`);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error deleting user:', error);
         throw error;
     }
 }
