@@ -67,16 +67,16 @@ export async function registerScreen(email, password) {
     }
 }
 
-export async function deleteUser(userId /*token*/) {
+export async function deleteUser(userId, token) {
     try {
-        //const token = sessionStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         const userId = sessionStorage.getItem('userId');
         const response = await fetch('http://localhost:3001/users/delete', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
                 'user-id': userId,
-                //Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
             },
         });
 

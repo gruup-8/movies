@@ -1,0 +1,54 @@
+.groups-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Lisää läpinäkyvä tausta */ 
+    border-radius: 10px; 
+    margin: 20px;
+}
+
+.groups-page h1 {
+    margin-bottom: 20px;
+} 
+
+.groups-page ul {
+    list-style: none;
+    padding: 0; 
+    width: 100%; 
+    max-width: 400px; 
+} 
+
+.groups-page li {
+    padding: 10px 0; 
+    border-bottom: 1px solid #ccc; 
+} 
+
+.groups-page li a { 
+    text-decoration: none; 
+    color: #333; 
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s;
+} 
+
+.groups-page li a:hover {
+    background-color: #e0e0e0;
+} 
+
+button { 
+    padding: 5px 10px; 
+    border: none; 
+    border-radius: 5px; 
+    background-color: #007bff; 
+    color: white; 
+    cursor: pointer; 
+    transition: background-color 0.3s;
+    margin-top: 20px;
+} 
+
+button:hover { 
+    background-color: #0056b3;
+}
