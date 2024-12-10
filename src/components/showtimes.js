@@ -1,70 +1,64 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import AreasMenu from './areas';
+import React, { useEffect, useState } from 'react';
 import AddToGroupPage from './addToGroupPage';
+import AreasMenu from './areas';
 
-const Showtimes = ({ groupId }) => {
+const Showtimes = ({groupId}) => {
     const [selectedArea, setSelectedArea] = useState(null);
     const [showtimes, setShowtimes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [selectedShowtime, setSelectedShowtime] = useState(null);  
 
-    const fetchShowtimes = async (areaId) => {
-        setLoading(true);
-        setError(null);
+        const fetchShowtimes = async (areaId) => {
+            setLoading(true);
+            setError(null);
 
-        try {
-            const response = await axios.get('http://localhost:3001/areas/shows', {
-                params: {
-                    area_id: areaId,
-                },
-            });
-            setShowtimes(response.data);
-        } catch (err) {
-            setError('Failed fetching showtimes');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+            try {
+                const response = await axios.get('http://localhost:3001/areas/shows', {
+                    params: {
+                        area_id: areaId,
+                    },
+                });
+                setShowtimes(response.data);
+            } catch (err) {
+                setError('Failed fetching showtimes');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    useEffect(() => {
-        if (selectedArea) {
-            fetchShowtimes(selectedArea);
-        }
-    }, [selectedArea]);
-
+        useEffect(() => {
+            if (selectedArea) {
+                fetchShowtimes(selectedArea);
+            }
+        }, [selectedArea]);
+        
+        
     return (
         <div>
             <h1>Showtimes</h1>
             <AreasMenu onAreaSelect={(areaId) => setSelectedArea(areaId)} />
             {loading && <div>Loading...</div>}
             {error && <div>{error}</div>}
-            {!loading && !error && showtimes.length > 0 ? (
+            {!loading && !error && (
                 <ul>
                     {showtimes.map((showtime) => (
-                        <li key={showtime.id} style={{ marginBottom: '20px', listStyleType: 'none' }}>
+                        <li key={showtime.id}>
                             <h2>{showtime.title}</h2>
-                            <p>Theatre: {showtime.theatre}</p>
-                            <p>Showtime: {new Date(showtime.startTime).toLocaleString()}</p>
-                            {showtime.pic_link && (
-                                <img
-                                    src={showtime.pic_link}
-                                    alt={showtime.title}
-                                    style={{ width: '100px', height: '150px', objectFit: 'cover' }}
-                                />
-                            )}
-                            {/* Add movie/showtime to group */}
+                            <p>{showtime.theatre}</p>
+                            <p>{new Date(showtime.startTime).toLocaleString()}</p>
+                            {showtime.pic_link && <img src={showtime.pic_link} alt={showtime.title} />}
+
                             <AddToGroupPage 
-                                groupId={groupId} 
+                                groupId={groupId}
                                 movieId={showtime.id}
-                                showtime={showtime.startTime}
+                                showtime={showtime}
                             />
                         </li>
                     ))}
                 </ul>
-            ) : (
-                <p>No showtimes found for the selected area.</p>
             )}
         </div>
     );

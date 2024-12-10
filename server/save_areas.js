@@ -1,7 +1,7 @@
-import pool from './helpers/db.js'; // PostgreSQL library
-import { parseStringPromise } from 'xml2js'; // XML parsing library
 import fs from 'fs';
-//firs run this in git bash
+import { parseStringPromise } from 'xml2js'; // XML parsing library
+import pool from './helpers/db.js'; // PostgreSQL library
+//first run this in git bash
 //curl -X GET "https://www.finnkino.fi/xml/TheatreAreas/" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"> theatre_area.xml
 //then this (be in the server file): node save_areas.js 
 //the latter is propably enough if you already have file named theatre_area.xml 

@@ -29,7 +29,7 @@ export const getToken = () => {
         console.warn('getToken retrieved: null or undefined, user might not be logged in');
     }
 
-    //console.log('getToken retrieved:', token);
+    console.log('getToken retrieved:', token);
     return token;
 };
 
@@ -67,7 +67,7 @@ export const getDecodedToken = () => {
 
     try {
         const decoded = jwtDecode(token);
-        //console.log('Decoded token:', decoded);
+        console.log('Decoded token:', decoded);
         return decoded;
     } catch (error) {
         console.error('failed to decode token:', error);
