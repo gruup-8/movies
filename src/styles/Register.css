@@ -61,3 +61,27 @@ button:hover {
 .signup-link a:hover {
     text-decoration: underline;
 }
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-container input {
+    flex: 1;
+}
+
+.input-container span {
+    position: absolute;
+    right: 10px;
+    font-size: 1.2rem;
+}
+
+span.valid {
+    color: green;
+}
+
+span.invalid {
+    color: red;
+}

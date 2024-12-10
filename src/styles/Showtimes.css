@@ -1,0 +1,73 @@
+/* General container styles */
+.showtime-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 20px;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Individual showtime card */
+.showtime-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 220px;
+    box-sizing: border-box;
+}
+
+/* Add hover effect */
+.showtime-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Showtime poster style */
+.showtime-poster {
+    width: 150px;
+    height: 250px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Showtime title styles */
+.showtime-title {
+    margin-top: 10px;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .showtime-card {
+        width: 180px;
+        padding: 15px;
+    }
+    .showtime-poster {
+        width: 120px;
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .showtime-card {
+        width: 150px;
+        padding: 10px;
+    }
+    .showtime-poster {
+        width: 100px;
+        height: 150px;
+    }
+}

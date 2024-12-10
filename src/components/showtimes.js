@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import AreasMenu from './areas';
 import AddToGroupPage from './addToGroupPage';
+import '../styles/Showtimes.css';
 
 const Showtimes = ({ groupId }) => {
     const [selectedArea, setSelectedArea] = useState(null);
@@ -41,17 +42,17 @@ const Showtimes = ({ groupId }) => {
             {loading && <div>Loading...</div>}
             {error && <div>{error}</div>}
             {!loading && !error && showtimes.length > 0 ? (
-                <ul>
+                <ul className="showtime-list">
                     {showtimes.map((showtime) => (
-                        <li key={showtime.id} style={{ marginBottom: '20px', listStyleType: 'none' }}>
-                            <h2>{showtime.title}</h2>
+                         <li key={showtime.id} className="showtime-card">
+                            <h2 className="showtime-title">{showtime.title}</h2>
                             <p>Theatre: {showtime.theatre}</p>
                             <p>Showtime: {new Date(showtime.startTime).toLocaleString()}</p>
                             {showtime.pic_link && (
                                 <img
-                                    src={showtime.pic_link}
-                                    alt={showtime.title}
-                                    style={{ width: '100px', height: '150px', objectFit: 'cover' }}
+                                src={showtime.pic_link}
+                                alt={showtime.title}
+                                className="showtime-poster"
                                 />
                             )}
                             {/* Add movie/showtime to group */}
