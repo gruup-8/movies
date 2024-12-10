@@ -31,12 +31,13 @@ export const fetchUserGroups = async () => {
 
 
 // Add movie to group page
-export const addMovieToGroup  = async (groupId, movieId, showtime) => {
+export const addMovieToGroup  = async (groupId, payload) => {
     const token = getToken();
     if (!token) {
         console.error('Cannot fetch groups: user is not authenticated.');
         throw new Error('User is not authenticated');
     }
+    const requestBody = { group_id: groupId, ...payload };
 
     try{
         // Add the movie to the selected group
@@ -46,11 +47,7 @@ export const addMovieToGroup  = async (groupId, movieId, showtime) => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ 
-                group_id: groupId,
-                movie_id: movieId,
-                showtime: showtime, 
-            }),
+            body: JSON.stringify(requestBody),
         });
 
         if (!response.ok) {
@@ -89,7 +86,10 @@ export const fetchGroupMovies = async (groupId) => {
             throw new Error(data.message || 'Failed to fetch group movies');
         }
 
-        return data.movies; // Assuming the API returns an array of movies
+        return {
+            movies: data.movies,
+            showtimes: data.showtimes,
+        };
     } catch (err) {
         console.error('Error fetching group movies:', err);
         throw err;

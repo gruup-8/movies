@@ -1,7 +1,8 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import '../styles/Groups.css'
 import GroupManagement from "../components/groupManagement";
+import GroupMovies from "../components/GroupMovies";
+import '../styles/Groups.css';
 
 
 
@@ -13,6 +14,7 @@ return (
         <Routes>
             <Route path="/" element={<GroupManagement />} />
             <Route path="/:groupId" element={<GroupManagement />} />
+            <Route path="/group/custom" element={<GroupMovies />}/>
         </Routes>
     </div>
     )
