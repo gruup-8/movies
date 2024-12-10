@@ -9,6 +9,7 @@ import Showtimes from "../components/showtimes";
 
 
 
+
 const Movies = () => {
     return (
         <div>
@@ -21,7 +22,7 @@ const Movies = () => {
           path="/movies"
           element={
             <div>
-                <GenreDropdown />
+              <GenreDropdown />
               <Showtimes />
               <h1>Movies</h1>
               <MoviePage />

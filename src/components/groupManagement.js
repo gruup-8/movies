@@ -5,6 +5,7 @@ import { getToken } from "../services/authService";
 import { jwtDecode } from "jwt-decode";
 import AddToGroupPage from "./addToGroupPage";
 import GroupMovies from "./GroupMovies";
+import '../styles/GroupManagement.css';
 
 const GroupManagement = ({requests}) => {
     const navigate = useNavigate();
@@ -254,20 +255,20 @@ const GroupManagement = ({requests}) => {
                 </div>
             ) : (
                 // Group List View
-                <div>
+                <div className="group-managment">
                     <h2>Your Groups</h2>
                     <h3>Groups You Created</h3>
             <ul>
                 {groups.filter((group) => group.status === 'creator').map((group) => (
-                    <li key={group.id}  onClick={() => handleGroupClick(group.id)}>{group.name}</li>
+                    <li key={group.id}  onClick={() => handleGroupClick(group.id)} className="group-item">{group.name}</li>
                 ))}
             </ul>
                 <h3>Available Groups</h3>
                     <ul>
                     {availableGroups.map((group) => (
-                    <li key={group.id}>
+                    <li key={group.id} className="group-item">
                         {group.name}
-                        <button onClick={() => handleJoin(group.id)}>
+                        <button onClick={() => handleJoin(group.id)} className="join-button">
                             {group.request_status === 'available' ? 'Request to Join' : 'pending'}
                         </button>
                     </li>
@@ -280,8 +281,9 @@ const GroupManagement = ({requests}) => {
                         value={newGroupName}
                         onChange={(e) => setNewGroupName(e.target.value)}
                         placeholder="Enter group name"
+                        className="group-input"
                     />
-                    <button onClick={handleCreateGroup}>Create Group</button>
+                    <button onClick={handleCreateGroup} className="create-group-button">Create Group</button>
                 </div>
             )}
 
