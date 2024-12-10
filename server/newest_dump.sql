@@ -1,8 +1,3 @@
-BEGIN;
-
-CREATE SEQUENCE IF NOT EXISTS public.showtimes_id_seq;
-
-CREATE SEQUENCE IF NOT EXISTS public.users_id_seq;
 
 CREATE TABLE IF NOT EXISTS public."Areas"
 (
@@ -13,11 +8,9 @@ CREATE TABLE IF NOT EXISTS public."Areas"
 
 CREATE TABLE IF NOT EXISTS public."Custom"
 (
-    id serial NOT NULL,
     group_id integer,
     movie_id integer,
-    showtime timestamp without time zone,
-    CONSTRAINT "Custom_pkey" PRIMARY KEY (id)
+    showtime integer
 );
 
 CREATE TABLE IF NOT EXISTS public."Favorites"
@@ -82,7 +75,7 @@ CREATE TABLE IF NOT EXISTS public."Showtimes"
     id integer NOT NULL DEFAULT nextval('showtimes_id_seq'::regclass),
     movie_title character varying(255) COLLATE pg_catalog."default" NOT NULL,
     theatre_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
-    show_time timestamp with time zone,
+    show_time timestamp without time zone,
     picture character varying(255) COLLATE pg_catalog."default",
     CONSTRAINT "Showtimes_pkey" PRIMARY KEY (id)
 );
@@ -111,12 +104,11 @@ ALTER TABLE IF EXISTS public."Custom"
 
 
 ALTER TABLE IF EXISTS public."Custom"
-    ADD CONSTRAINT custom_movie_id_fkey FOREIGN KEY (id)
-    REFERENCES public."Movies" (id) MATCH SIMPLE
+    ADD CONSTRAINT showtime_id_fkey FOREIGN KEY (showtime)
+    REFERENCES public."Showtimes" (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS "Custom_pkey"
-    ON public."Custom"(id);
+    ON DELETE NO ACTION
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS public."Favorites"
@@ -180,5 +172,3 @@ ALTER TABLE IF EXISTS public.movie_genres
     REFERENCES public."Movies" (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
-
-END;
