@@ -82,11 +82,51 @@ router.post('/login', async (req, res) => {
         if (!isValidPassword) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-
-        const token = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '1h'});
-        res.status(200).json({ token });
+        // Generate access token
+        const token = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '1m'});
+        // Generate refresh token
+        const refreshToken = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '15m'})
+        // Save refresh token to DB
+        await pool.query('INSERT INTO "RefreshTokens" (user_id, token) VALUES ($1, $2)', [user.id, refreshToken]);
+        res.status(200).json({ token, refreshToken });
     } catch (error) {
         res.status(500).json({ message: 'Error logging in user' });
+    }
+});
+
+router.post('/refresh-token', async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken){
+        return res.status(400).json({ message: 'Refresh token is required' });
+    }
+    try{
+        // Verify the refresh token
+        const decoded = jwt.verify(refreshToken, SECRET_KEY);
+
+        // Check if the token exist in the database
+        const result = await pool.query('SELECT token FROM "RefreshTokens" WHERE token = $1', [refreshToken]);
+        if (result.rows.length === 0){
+            return res.status(403).json({ message: 'Invalid refresh token' })
+        }
+
+        // Generate a new access token
+        const accessToken = jwt.sign({ id: decoded.id, email: decoded.email }, SECRET_KEY, { expiresIn: '15m' });
+        res.status(200).json({ accessToken });
+    }catch(error){
+        console.error('Error refreshing token:', error);
+        return res.status(403).json({ message: 'Invalid or expired refresh token' });
+    }
+});
+
+router.post('/logout', async (req, res) => {
+    const { refreshToken } = req.body;
+
+    try {
+        await pool.query('DELETE FROM "RefreshTokens" WHERE token = $1', [refreshToken]);
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error logging out' });
     }
 });
 

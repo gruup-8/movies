@@ -6,10 +6,24 @@ const router = Router();
 
 router.get('/', async (req,res) => {
     try {
-        const result = await pool.query('SELECT * FROM "Review"');
+        const query = `
+            SELECT             
+                r.movie_id, 
+                r.user_email, 
+                r.stars, 
+                r.comment, 
+                r.timestamp,
+                m.title AS movie_title, 
+                m.poster_path AS movie_poster
+            FROM "Review" r
+            JOIN "Movies" m ON r.movie_id = m.id
+        `
+        //console.log('Fetching reviews with query:', query);
+        const result = await pool.query(query);
         res.json(result.rows);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to retrieve reviews' });
+        console.error('Error retrieving reviews:', error.message);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -32,6 +46,11 @@ router.post('/', authenticateUser, async (req, res) => {
            'INSERT INTO "Review" (movie_id, user_email, stars, comment, timestamp) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP) RETURNING *',
             [movie_id, userEmail, stars, comment]
         );
+
+        if (!comment || comment.length > 500) {
+            return res.status(400).json({ message: 'Comment is too long or missing' });
+        }
+
         console.log('Review added:', result.rows[0]);
         res.status(201).json({
             message: 'Review added successfully',

@@ -32,23 +32,21 @@ const MovieReview = ({ movieId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Ensure state values are correct before sending
-    console.log('Submitting review:', newReview);
-
     try {
-        await postReview(movieId, newReview.stars, newReview.comment);
+        const postedReview = await postReview(movieId, newReview.stars, newReview.comment);
+        setReviews((prevReviews) => [...prevReviews, postedReview.review]); // Update state
         setNewReview({ movie_id: "", stars: "", comment: "" });
     } catch (error) {
-        console.error('Error posting review:', error);
+        console.error("Error posting review:", error);
     }
-};
+  };
 
   return (
     <div>
       <h3>Reviews</h3>
       {reviews.length > 0 ? (
         reviews.map((review) => (
-          <div key={review.movie_id}>
+          <div key={review.movie_id} className="review-card">
             {review.movie_id}
             <p>{review.stars} ★</p>
             <p>{review.comment}</p>
