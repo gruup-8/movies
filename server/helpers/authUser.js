@@ -19,6 +19,15 @@ const authenticateUser = async (req, res, next) => {
             id: decoded.id,
             email: decoded.email
         }; 
+
+        const newAccessToken = jwt.sign(
+            { id: decoded.id, email: decoded.email },
+            SECRET_KEY,
+            { expiresIn: '2m' }
+        );
+
+        res.setHeader('Authorization', `Bearer ${newAccessToken}`);
+
         next();
     } catch (error) {
         console.error('Error verifying token:', error);

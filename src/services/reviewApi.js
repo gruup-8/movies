@@ -10,25 +10,26 @@ export const fetchReviews = async() => {
             headers: { 'Content-Type': 'application/json' },
         });
         
-        if(!response.ok){
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to fetch reviews');
-        }
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error response data:', errorData); // Log error data for debugging
+          throw new Error(errorData.message || 'Failed to fetch reviews');
+      }
         const data = await response.json();
         if (data.length === 0) {
-          console.log('Theres no review'); // Log this case for debugging
+          console.log('No reviews returned:', data); // Log this case for debugging
         }
         return data;
     }catch(err){
-        console.error('Failed fetching reviews:', err);
-        throw err;
+      console.error('Error occurred while fetching reviews:', err);
+      throw err;
     }
 }
 
 // Post a new review
 export const postReview = async (movie_id, stars, comment) => {
   const token = getToken();
-
+  console.log('Retrieved token:', token);
     if (!token) {
         throw new Error('User is not authenticated');
     }
@@ -44,6 +45,7 @@ export const postReview = async (movie_id, stars, comment) => {
       });
       if (!response.ok) {
         const error = await response.json();
+        console.error('Error response data during post:', error);
         throw new Error(error.message || "Failed to post review");
       }
       return await response.json();
