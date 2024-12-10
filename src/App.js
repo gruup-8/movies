@@ -19,7 +19,7 @@ import PublicFavoritesPage from './components/PublicFavorites.js';
 import Groups from './pages/Groups.js';
 import Profile from './pages/profile.js';
 import DeleteAccount from './components/deleteUser.js';
-
+import Reviews from './pages/reviews.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
@@ -45,6 +45,7 @@ function App() {
       <Routes>
         <Route path="/" element={<h1>Welcome to Cozy Couch</h1>} />
         <Route path="/movies/*" element={<Movies />} />
+        <Route path="/reviews/*" element={<Reviews />} />
         <Route path='/showtimes/*' element={<Showtimes />} />
 
         {/* Public Route: Movies and Showtimes (always accessible) */}
