@@ -16,6 +16,10 @@ import About from './pages/About.js';
 import Movies from './pages/Movies.js';
 import FavoritesPage from './components/Favorites';
 import PublicFavoritesPage from './components/PublicFavorites.js';
+import Groups from './pages/Groups.js';
+import Profile from './pages/profile.js';
+import DeleteAccount from './components/deleteUser.js';
+import Reviews from './pages/reviews.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
@@ -41,6 +45,7 @@ function App() {
       <Routes>
         <Route path="/" element={<h1>Welcome to Cozy Couch</h1>} />
         <Route path="/movies/*" element={<Movies />} />
+        <Route path="/reviews/*" element={<Reviews />} />
         <Route path='/showtimes/*' element={<Showtimes />} />
 
         {/* Public Route: Movies and Showtimes (always accessible) */}
@@ -73,9 +78,10 @@ function App() {
         <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
         {/* Public Route: Register */}
         <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
+        <Route path="/groups" element={<Groups />} />
         <Route path="/" element={<GroupManagement />} />
         <Route path="/groups/:groupId" element={<GroupManagement />} />
-        <Route path="/profile" element={<FavoritesPage />} />
+        <Route path="/profile" element={<Profile userId={sessionStorage.getItem('userId')} groups={[]} DeleteAccount={DeleteAccount} />} />
         <Route path="/about" element={<About />} />
         <Route path="/favorites/public/:userId" element={<PublicFavoritesPage />} />
       </Routes>

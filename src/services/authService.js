@@ -1,5 +1,27 @@
 import { jwtDecode } from 'jwt-decode';
 
+export const fetchUserDetails = async () => {
+    const token = getToken();
+    if (!token) {
+        throw new Error('User is not authenticated');
+    }
+
+    const response = await fetch('http://localhost:3001/users/me', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch user details');
+    }
+
+    return await response.json();
+};
+
 export const getToken = () => {
     const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
