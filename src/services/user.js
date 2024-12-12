@@ -66,15 +66,38 @@ export async function registerScreen(email, password) {
     }
 }
 
+export async function handleLogout() {
+    const token = sessionStorage.getItem('authToken');
+    try {
+        const response = await fetch('http://localhost:3001/users/logout', {
+            method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            console.log('Logout failed', data);
+            throw new Error(data.message || 'Logout failed');
+        }
+        sessionStorage.removeItem('authToken'); // Clear the auth token
+        console.log('Logout successful', data);
+
+        return true;
+    } catch (error) {
+        console.error('Error logging out:', error);
+        return false;
+    }
+}
+
 export async function deleteUser(userId, token) {
     try {
         const token = sessionStorage.getItem('authToken');
-        const userId = sessionStorage.getItem('userId');
         const response = await fetch('http://localhost:3001/users/delete', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'user-id': userId,
                 Authorization: `Bearer ${token}`,
             },
         });
@@ -82,7 +105,6 @@ export async function deleteUser(userId, token) {
         const data = await response.json();
 
         if (response.ok) {
-            sessionStorage.removeItem('userId'); // Clear stored userId
             console.log('User deleted successfully:', data);
             return data;
         } else {

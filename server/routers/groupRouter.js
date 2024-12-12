@@ -28,14 +28,14 @@ router.get('/', authenticateUser, async (req, res) => {
 
         const availableGroups = await client.query(
             `SELECT g.id, g.name, g.creator_id,
-                    CASE
-                        WHEN gr.user_id = $1 AND gr.status = 'pending' THEN 'pending'
-                        ELSE 'available'
-                    END AS request_status
-             FROM "Groups" g
-             LEFT JOIN "GroupRequests" gr ON g.id = gr.group_id AND gr.user_id = $1
-             WHERE g.creator_id != $1
-             AND (gr.status IS NULL OR gr.status = 'pending')`,
+            CASE
+                WHEN gr.user_id = $1 AND gr.status = 'pending' THEN 'pending'
+                ELSE 'available'
+            END AS request_status
+            FROM "Groups" g
+            LEFT JOIN "GroupRequests" gr ON g.id = gr.group_id AND gr.user_id = $1
+            WHERE g.creator_id != $1
+            AND (gr.status IS NULL OR gr.status = 'pending')`,
             [userId]
         );
         await client.query('COMMIT');
@@ -288,19 +288,19 @@ router.get('/:groupId', authenticateUser, async (req, res) => {
 
 router.delete('/:groupId', authenticateUser, async (req, res) => {
     const groupId = req.params.groupId;
-    const { id } = req;
+    const { id } = req.user;
     console.log(id);
 
     try {
-        const groupCheck = await pool.query('SELECT * FROM "Groups" WHERE id = $1 AND creator_id = $2', [groupId, requesterId]);
+        const groupCheck = await pool.query('SELECT * FROM "Groups" WHERE id = $1 AND creator_id = $2', [groupId, id]);
 
         if (groupCheck.rows.length === 0) {
             return res.status(403).json({ message: 'Only the creator can delete a group' });
         }
 
-        await pool.query('DELETE FROM "Groups" WHERE id = $1', [groupId]);
         await pool.query('DELETE FROM "GroupMembers" WHERE group_id = $1', [groupId]);
-
+        await pool.query('DELETE FROM "Groups" WHERE id = $1', [groupId]);
+    
         res.status(200).json({ message: 'Group deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting group' });
@@ -332,8 +332,21 @@ router.delete('/:groupId/member', authenticateUser, async (req, res) => {
     const userId = req.user.id;
 
     try {
+        const groupCheck = await pool.query(
+            'SELECT * FROM "GroupMembers" WHERE group_id = $1 AND user_id = $2',
+            [groupId, userId]
+        );
+
+        if (groupCheck.rows.length === 0) {
+            return res.status(404).json({ message: 'User is not a member of this group' });
+        }
+
         await pool.query(
             'DELETE FROM "GroupMembers" WHERE group_id = $1 AND user_id = $2',
+            [groupId, userId]
+        );
+        await pool.query(
+            'DELETE FROM "GroupRequests" WHERE group_id = $1 AND user_id = $2',
             [groupId, userId]
         );
         res.status(200).json({ message: 'You left the group' });

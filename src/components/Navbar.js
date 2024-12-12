@@ -1,9 +1,23 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import {React, useEffect} from "react";
+import { Link, useNavigate } from "react-router-dom";
 import '../styles/Navbar.css';
 import logo from '../assets/cozy-couch.png';
+import { handleLogout } from "../services/user";
 
-const Navbar = ({ isLoggedIn, handleLogout }) => {
+const Navbar = ({ isLoggedIn,  setIsLoggedIn, setUser }) => {
+    const navigate = useNavigate();
+
+    const handleLogoutClick = async () => {
+        const logoutSuccess = await handleLogout();
+        if (logoutSuccess) {
+            setIsLoggedIn(false);
+            setUser(null);
+            navigate('/');
+        } else {
+            console.error('Logout failed');
+        }
+    };
+
     return (
         <nav className="navbar">
             <div className="logo">
@@ -19,7 +33,7 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
                 </ul>
                 <div className="auth-links">
                 {isLoggedIn ? (
-                    <button onClick={handleLogout}>Logout</button>
+                    <button onClick={handleLogoutClick}>Logout</button>
                 ) : (
                     <>
                     <Link to="/login">

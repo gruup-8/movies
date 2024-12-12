@@ -11,8 +11,9 @@ const SECRET_KEY = process.env.JWT_SECRET_KEY;
 const router = Router();
 
 router.get('/me', authenticateUser, async (req, res) => {
-    const userId = req.user.id;
+
     try {
+        const userId = req.user.id;
         const result = await pool.query('SELECT id, email FROM "Users" WHERE id = $1', [userId]);
 
         if (result.rows === 0) {
@@ -53,8 +54,8 @@ router.post('/register', async (req,res) => {
         console.log("SQL query result:", result); 
         const user = result.rows[0];
         console.log('User inserted:', user);
-        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-        console.log('Generated token:', token);
+        //const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+        //console.log('Generated token:', token);
         res.status(201).json({ message: 'User registered successfully', user, token });
     } catch (error) {
         res.status(500).json({ message: 'Error registering user' });
@@ -83,18 +84,18 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
         // Generate access token
-        const token = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '1m'});
+        const token = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '1h'});
         // Generate refresh token
-        const refreshToken = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '15m'})
+        //const refreshToken = jwt.sign({ id: user.id, email }, SECRET_KEY, {expiresIn: '15m'})
         // Save refresh token to DB
-        await pool.query('INSERT INTO "RefreshTokens" (user_id, token) VALUES ($1, $2)', [user.id, refreshToken]);
-        res.status(200).json({ token, refreshToken });
+        //await pool.query('INSERT INTO "RefreshTokens" (user_id, token) VALUES ($1, $2)', [user.id, refreshToken]);
+        res.status(200).json({ token });
     } catch (error) {
         res.status(500).json({ message: 'Error logging in user' });
     }
 });
 
-router.post('/refresh-token', async (req, res) => {
+/*router.post('/refresh-token', async (req, res) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken){
@@ -117,32 +118,59 @@ router.post('/refresh-token', async (req, res) => {
         console.error('Error refreshing token:', error);
         return res.status(403).json({ message: 'Invalid or expired refresh token' });
     }
-});
+});*/
 
 router.post('/logout', async (req, res) => {
-    const { refreshToken } = req.body;
-
+    res.clearCookie('access_token');
+    res.status(200).json({ message: 'Logged out successfully' });
+    /*const { refreshToken } = req.body;
     try {
         await pool.query('DELETE FROM "RefreshTokens" WHERE token = $1', [refreshToken]);
         res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error logging out' });
-    }
+    }*/
 });
 
 router.delete('/delete', authenticateUser, async (req, res) => {
-    const userId = req.user.id;
-
     try {
-        const result = await pool.query('DELETE FROM "Users" WHERE id = $1 RETURNING *', [userId]);
+        const userId = req.user.id;
+        await pool.query('BEGIN');
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        console.log('Deleting movie reviews...');
+        await pool.query(
+            `DELETE FROM "Review" WHERE user_email = (
+            SELECT email FROM "Users" WHERE id = $1
+        );`
+        , [userId]);
 
-        res.status(200).json({ message: 'User account deleted successfully' });
+        console.log('Delete customizations');
+        await pool.query(
+            `DELETE FROM "Custom" 
+             WHERE group_id IN (
+                SELECT group_id
+                FROM "GroupMembers" 
+                WHERE user_id = $1
+            );`
+        , [userId]);
+
+        await pool.query('DELETE FROM "GroupMembers" WHERE user_id = $1', [userId]);
+        await pool.query('DELETE FROM "GroupRequests" WHERE user_id = $1', [userId]);
+
+        console.log('deleting favorites');
+        await pool.query('DELETE FROM "Favorites" WHERE user_id = $1', [userId]);
+
+        console.log('Deleting created groups');
+        await pool.query('DELETE FROM "Groups" WHERE creator_id = $1', [userId]);
+
+        console.log('deleting account');
+        const result = await pool.query('DELETE FROM "Users" WHERE id = $1', [userId]);
+
+        await pool.query('COMMIT');
+        res.status(200).json({ message: 'User account and related data deleted successfully' });
     } catch (error) {
         console.error('Error deleting user: ', error);
+        await pool.query('ROLLBACK');
         res.status(500).json({ message: 'Error deleting user account' });
     }
 });

@@ -24,10 +24,24 @@ router.get('/fetch-and-store', async (req, res) => {
 });
 
 router.get('/', async (req,res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
     try {
-        const result = await pool.query('SELECT * FROM "Movies"');
-        
-        res.json(result.rows);
+        const result = await pool.query('SELECT * FROM "Movies" LIMIT $1 OFFSET $2',
+            [limit, offset]
+        );
+        const countResult = await pool.query('SELECT COUNT(*) FROM "Movies"');
+        const totalMovies = parseInt(countResult.rows[0].count);
+        const totalPages = Math.ceil(totalMovies / limit);
+
+        res.json({
+            results: result.rows,
+            total_pages: totalPages,
+            current_page: page,
+            total_movies: totalMovies,
+        });
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve movies' });
     }
@@ -101,7 +115,7 @@ router.get('/top-rated', async (req, res) => {
 
 router.get('/search', async (req, res) => {
     const { query } = req.query;
-    const {page = 1} = req.query;
+    const {page} = req.query;
 
     try {
         const response = await axios.get(`${BASE_URL}/search/movie`, {
@@ -118,7 +132,10 @@ router.get('/search', async (req, res) => {
         if (response.data.results.length === 0) {
           return res.status(404).json({ error: 'No movies found for the given query' });
         }
-        res.json(response.data.results);
+        res.json({
+            results: response.data.results,
+            total_pages: response.data.total_pages,
+        });
       } catch (err) {
         console.error('Error fetching movies from database:', err);
         res.status(500).json({ error: 'Failed to fetch movies' });

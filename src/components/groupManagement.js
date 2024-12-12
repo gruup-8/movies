@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { createGroup, fetchGroupDetails, fetchGroups, leaveGroup, removeUser, respondedToReq, sendJoinReq } from "../services/groups";
+import { createGroup, deleteGroup, fetchGroupDetails, fetchGroups, leaveGroup, removeUser, respondedToReq, sendJoinReq } from "../services/groups";
 import { getToken } from "../services/authService";
 import { jwtDecode } from "jwt-decode";
 import AddToGroupPage from "./addToGroupPage";
@@ -18,6 +18,7 @@ const GroupManagement = ({requests}) => {
     const [status, setStatus] = useState(null);
     const [updatedRequests, setUpdatedRequests] = useState(groupDetails?.requests || []);
     const [availableGroups, setAvailableGroups] = useState([]);
+    const [yourGroups, setYourGroups] = useState([]);
     
     const token = getToken();
 
@@ -83,6 +84,9 @@ const GroupManagement = ({requests}) => {
             if (result.requests) {
                 setUpdatedRequests(result.requests);
             }
+            if (result.members.some((member) => member.user_id === userId)) {
+                setYourGroups((prevGroups) => [...prevGroups, result]);
+            }
         } catch (error) {
             console.error('Error fetching group info:', error);
             setError('Error fetching group info:' + error.message);
@@ -94,7 +98,15 @@ const GroupManagement = ({requests}) => {
             const result = await createGroup(newGroupName);
             console.log('Group created:', result);
             setNewGroupName("");
-            setGroups((prevGroups) => [...prevGroups, result]); 
+
+            if (result && result.id) {
+                setGroups((prevGroups) => [...prevGroups, result]); 
+                setYourGroups((prevGroups) => [...prevGroups, result]);
+            } else {
+                console.error("Error: invalid group data");
+            }
+            
+            await loadGroups();
         } catch (error) {
             setError('Error creating group:' + error.message);
         }
@@ -152,8 +164,19 @@ const GroupManagement = ({requests}) => {
 
     const handleLeaving = async (groupId) => {
         try {
-            await leaveGroup(groupId, token);
+            await leaveGroup(groupId);
+
+            setGroups((prevGroups) => prevGroups.map((group) => 
+                group.id !== groupId));
+
+            const groupToMove = groups.find((group) => group.id === groupId);
+            setAvailableGroups((prevAvailableGroups) => [
+                ...prevAvailableGroups,
+               {...groupToMove, status: 'available'}
+            ]);
+            setYourGroups((prevGroups) => prevGroups.filter((group) => group.id !== groupId));
             await loadGroups();
+            navigate("/groups");
         } catch (error) {
             setError('Error: ' + error.message);
         }
@@ -165,6 +188,20 @@ const GroupManagement = ({requests}) => {
             await loadGroupDetails(); // Refresh group details after removing a member
         } catch (error) {
             setError("Error removing member: " + error.message);
+        }
+    };
+
+    const handleDeleteGroup = async (groupId) => {
+        try {
+            await deleteGroup(groupId);
+            console.log('Group deleted successfully');
+
+            setGroups((prevGroups) => prevGroups.filter((group) => group.id !== groupId));
+            setYourGroups((prevGroups) => prevGroups.filter((group) => group.id !== groupId)); // Remove group from "Your Groups"
+            await loadGroups();
+            navigate('/groups');
+        } catch (error) {
+            setError('Error deleting group: ' + error.message);
         }
     };
 
@@ -246,7 +283,14 @@ const GroupManagement = ({requests}) => {
                         <div>No members yet</div>
                     )}
                     </ul>
-                    <button onClick={() => handleLeaving(groupDetails.id)}>
+                    <button onClick={() => {
+                        if(isCreator){
+                            handleDeleteGroup(groupDetails.id);
+                        } else {
+                            handleLeaving(groupDetails.id);
+                        }
+                    }}
+                    >
                         {isCreator ? "Delete Group" : "Leave Group"}
                     </button>
                     <button onClick={() => navigate("/")}>Back to Groups</button>
@@ -257,6 +301,14 @@ const GroupManagement = ({requests}) => {
                 // Group List View
                 <div className="group-managment">
                     <h2>Your Groups</h2>
+                    <h3>Groups you are a member of</h3>
+                    <ul>
+                        {yourGroups.map((group) => (
+                            <li key={group.id} onClick={() => handleGroupClick(group.id)}>
+                                {group.name}
+                            </li>
+                        ))}
+                    </ul>
                     <h3>Groups You Created</h3>
             <ul>
                 {groups.filter((group) => group.status === 'creator').map((group) => (

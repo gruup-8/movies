@@ -11,7 +11,7 @@ import MovieDetails from './components/movieDetails';
 import LoginForm from './components/login';
 import RegisterForm from './components/register';
 import GroupManagement from './components/groupManagement';
-import { isAuthenticated, logout } from './services/authService';
+import { isAuthenticated } from './services/authService';
 import About from './pages/About.js';
 import Movies from './pages/Movies.js';
 import FavoritesPage from './components/Favorites';
@@ -23,15 +23,8 @@ import Reviews from './pages/reviews.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
-
-  sessionStorage.getItem('userId');
-  
-  const handleLogout = () => {
-    logout();
-    setIsLoggedIn(false);
-    navigate('/'); // Redirect to the homepage after logout
-  };
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -41,7 +34,7 @@ function App() {
   return (
     
       <div className="App">
-      <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setUser={setUser} />
       <Routes>
         <Route path="/" element={<h1>Welcome to Cozy Couch</h1>} />
         <Route path="/movies/*" element={<Movies />} />

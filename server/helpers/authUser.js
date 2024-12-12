@@ -20,13 +20,13 @@ const authenticateUser = async (req, res, next) => {
             email: decoded.email
         }; 
 
-        const newAccessToken = jwt.sign(
+       /* const newAccessToken = jwt.sign(
             { id: decoded.id, email: decoded.email },
             SECRET_KEY,
-            { expiresIn: '2m' }
-        );
+            { expiresIn: '1h' }
+        );*/
 
-        res.setHeader('Authorization', `Bearer ${newAccessToken}`);
+        //res.setHeader('Authorization', `Bearer ${newAccessToken}`);
 
         next();
     } catch (error) {
