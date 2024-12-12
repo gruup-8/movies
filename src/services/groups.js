@@ -124,7 +124,7 @@ export const deleteGroup = async (groupId) => {
         console.error('Cannot fetch groups: user is not authenticated.');
         throw new Error('User is not authenticated');
     }
-    const { userId } = getUserInfo();
+    //const { userId } = getUserInfo();
     //console.log("Sending request with token:", token);
     
     const response = await fetch(`${API_URL}/${groupId}`, {

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import pool from '../helpers/db.js';
 import axios from 'axios';
-
+//get genres with this in browser: http://localhost:3001/api/genres/Genres
 const router = Router();
 
 const genre_url = 'https://api.themoviedb.org/3/genre/movie/list';

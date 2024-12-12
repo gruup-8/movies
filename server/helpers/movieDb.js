@@ -4,6 +4,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+//how to add movies to db, file fould in documents folder inside the main folder
+/*
+COPY Movies(id, title, release_year, poster_path)
+FROM '/path/to/your/movies.csv'
+DELIMITER ','
+CSV HEADER
+ENCODING 'UTF8';
+*/
 
 
 const fetchDataFromAPI = async() => {

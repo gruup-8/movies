@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function MovieList({ movies }) {
 
-  if (!movies || movies.length === 0) {
+  if (!Array.isArray(movies) || movies.length === 0) {
     return <div>No movies available.</div>;
   }
 

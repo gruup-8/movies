@@ -22,8 +22,8 @@ export const fetchUserDetails = async () => {
     return await response.json();
 };
 
-export const getToken = () => {
-    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+export const getToken = () => {  
+    const token =  sessionStorage.getItem('authToken');
 
     if (!token) {
         console.warn('getToken retrieved: null or undefined, user might not be logged in');
@@ -33,32 +33,23 @@ export const getToken = () => {
     return token;
 };
 
+export const saveToken = (token) => {
+    console.log('Saving new token:', token);
+    sessionStorage.setItem('authToken', token);
+    console.log('Token saved successfully: ', token);
+};
+
+export const clearToken = () => {
+    sessionStorage.removeItem('authToken');
+};
+
 export const isAuthenticated = () => {
     const token = getToken();
     if (!token) return false;
 
-    const decoded = getDecodedToken();
-    if (!decoded || !decoded.exp) return false;
-
-    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    const decoded = jwtDecode(token);
+    const currentTime = Math.floor(Date.now() / 1000);
     return decoded.exp > currentTime;
-};
-
-export const saveToken = (token, rememberMe = false) => {
-    if (rememberMe) {
-        localStorage.setItem('authToken', token);
-    } else {
-        sessionStorage.setItem('authToken', token);
-    }
-
-    console.log('Token saved successfully: ', token);
-};
-
-export const logout = () => {
-    localStorage.removeItem('authToken');
-    sessionStorage.removeItem('authToken');
-    console.log('user logged out. token cleared');
-    window.location.href = '/login';
 };
 
 export const getDecodedToken = () => {
@@ -67,7 +58,7 @@ export const getDecodedToken = () => {
 
     try {
         const decoded = jwtDecode(token);
-        console.log('Decoded token:', decoded);
+        //console.log('Decoded token:', decoded);
         return decoded;
     } catch (error) {
         console.error('failed to decode token:', error);
