@@ -20,6 +20,7 @@ import Groups from './pages/Groups.js';
 import Profile from './pages/profile.js';
 import DeleteAccount from './components/deleteUser.js';
 import Reviews from './pages/reviews.js';
+import PublicFavorites from './pages/Favorites_public.js'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
@@ -74,9 +75,10 @@ function App() {
         <Route path="/groups" element={<Groups />} />
         <Route path="/" element={<GroupManagement />} />
         <Route path="/groups/:groupId" element={<GroupManagement />} />
-        <Route path="/profile" element={<Profile userId={sessionStorage.getItem('userId')} groups={[]} DeleteAccount={DeleteAccount} />} />
+        <Route path="/profile/*" element={<Profile userId={sessionStorage.getItem('userId')} groups={[]} DeleteAccount={DeleteAccount} />} />
         <Route path="/about" element={<About />} />
         <Route path="/favorites/public/:userId" element={<PublicFavoritesPage />} />
+        <Route path="/favorites/public" element={<PublicFavorites />} />
       </Routes>
     </div>
   );
