@@ -3,14 +3,21 @@ import { getToken } from './authService';
 
 const API_URL = 'http://localhost:3001/favorites';
 
-function getUserInfo() {
+export function getUserInfo() {
     const token = getToken();
     if (!token) {
+        console.error('No token found. User is not authenticated.');
         throw new Error('User not authenticated');
     }
 
     try {
-        return jwtDecode(token);
+        const decoded =  jwtDecode(token);
+        console.log('Decoded token:', decoded);
+        if (!decoded || !decoded.id) {
+            console.error('Decoded token does not contain userId:', decoded);
+            throw new Error('Invalid token structure');
+        }
+        return { userId: decoded.id };
     } catch (error) {
         console.error('Invalid token:', error);
         throw new Error('Failed to decode');
@@ -23,9 +30,6 @@ export const favoriteList = async () => {
     if (!token) {
         throw new Error('User is not authenticated');
     }
-
-    const { userId } = getUserInfo();
-    //console.log('Fetching favorites list for user:', userId);
 
     try {
         const response = await fetch(`${API_URL}`, {
@@ -99,9 +103,6 @@ export const deleteFromList = async (movieId) => {
     const token = getToken();
     if (!token) throw new Error('User is not authenticated');
 
-    const { userId } = getUserInfo();
-    //console.log('Fetching favorites list for user:', userId);
-
     const response = await fetch(`${API_URL}/${movieId}`, {
         method: 'DELETE',
         headers: {
@@ -118,9 +119,6 @@ export const deleteFromList = async (movieId) => {
 export const visibilityManager = async (ispublic) => {
     const token = getToken();
     if (!token) throw new Error('User is not authenticated');
-
-    const { userId } = getUserInfo();
-    //console.log('Fetching favorites list for user:', userId);
 
     const response = await fetch(`${API_URL}/public`, {
         method: 'PATCH',
@@ -140,12 +138,16 @@ export const visibilityManager = async (ispublic) => {
 export const getShareLink = async () => {
     const token = getToken();
     if (!token) throw new Error('Share URI is required');
-    const { userId } = getUserInfo();
+
+    const userInfo = getUserInfo();
+    if (!userInfo || !userInfo.userId) throw new Error('User information missing');
+
+    const { userId } = userInfo;
+   
     const response = await fetch(`${API_URL}/public/share/${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
         },
     });
 
@@ -154,5 +156,5 @@ export const getShareLink = async () => {
     }
 
     const data = await response.json();
-    return data;
+    return { frontendLink: `http://localhost:3000/favorites/public/${userId}`, data };
 };

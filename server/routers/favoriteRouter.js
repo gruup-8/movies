@@ -99,16 +99,9 @@ router.patch('/public', authenticateUser, async (req, res) => {
 });
 
 router.get('/public/share/:userId', async (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1]; // Bearer <token>
-    if (!token) {
-        return res.status(401).json({ message: 'No token provided, authorization required' });
-    }
+    const userId  = req.params.userId;
 
     try {
-        const decoded = jwt.verify(token, SECRET_KEY);
-        const { userId } = decoded;
-        console.log('Decoded userId:', userId);
-
         const result = await pool.query(
             'SELECT movie_id FROM "Favorites" WHERE user_id = $1 AND public = true',
             [userId]

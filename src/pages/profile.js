@@ -54,7 +54,7 @@ const Profile = () => {
         <FavoritesPage />
         <Routes>
           <Route
-            path="/favorites"
+            path="/profile"
             element={
               <div>
                 <FavoritesPage />
