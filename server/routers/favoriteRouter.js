@@ -102,6 +102,16 @@ router.get('/public/share/:userId', async (req, res) => {
     const userId  = req.params.userId;
 
     try {
+        const userResult = await pool.query(
+            'SELECT id FROM "Users" WHERE id = $1', // Assuming you have a "Users" table
+            [userId]
+        );
+
+        // If the user doesn't exist, return a 404
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
         const result = await pool.query(
             'SELECT movie_id FROM "Favorites" WHERE user_id = $1 AND public = true',
             [userId]
