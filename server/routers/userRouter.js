@@ -54,10 +54,9 @@ router.post('/register', async (req,res) => {
         console.log("SQL query result:", result); 
         const user = result.rows[0];
         console.log('User inserted:', user);
-        //const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-        //console.log('Generated token:', token);
-        res.status(201).json({ message: 'User registered successfully', user, token });
+        res.status(201).json({ message: 'User registered successfully', user});
     } catch (error) {
+        console.error('Error in /register route:', error);
         res.status(500).json({ message: 'Error registering user' });
     }
 });

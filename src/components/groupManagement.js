@@ -293,7 +293,7 @@ const GroupManagement = ({requests}) => {
                     >
                         {isCreator ? "Delete Group" : "Leave Group"}
                     </button>
-                    <button onClick={() => navigate("/")}>Back to Groups</button>
+                    <button onClick={() => navigate("/groups")}>Back to Groups</button>
                     <h4>Groups movies</h4>
                     <GroupMovies groupId={groupId} />
                 </div>

@@ -5,8 +5,10 @@ import { authenticateUser } from '../helpers/authUser.js';
 const router = Router();
 
 router.get('/', async (req,res) => {
+    const { movie_id } = req.query;
+
     try {
-        const query = `
+        let query = `
             SELECT             
                 r.movie_id, 
                 r.user_email, 
@@ -17,9 +19,16 @@ router.get('/', async (req,res) => {
                 m.poster_path AS movie_poster
             FROM "Review" r
             JOIN "Movies" m ON r.movie_id = m.id
-        `
-        //console.log('Fetching reviews with query:', query);
-        const result = await pool.query(query);
+        `;
+        const queryParams = [];
+
+        if (movie_id) {
+            query += `WHERE r.movie_id = $1`;
+            queryParams.push(movie_id);
+        }
+
+        console.log('Executing query:', query, 'with params:', queryParams);
+        const result = await pool.query(query, queryParams);
         res.json(result.rows);
     } catch (error) {
         console.error('Error retrieving reviews:', error.message);
