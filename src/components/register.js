@@ -88,6 +88,8 @@ function RegisterForm() {
             </div>
             <button type='submit' className="register-button">Register</button>
         </form>
+        <p>Already have an account?</p>
+        <a href="/login">Login</a>
         </div>
     );
 }

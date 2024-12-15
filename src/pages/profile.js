@@ -7,6 +7,7 @@ import FavoritesPage from "../components/Favorites";
 import DeleteAccount from "../components/deleteUser";
 import { fetchUserDetails } from "../services/authService";
 import { fetchUserGroups } from "../services/groupCustomization";
+import "../styles/Profile.css";
 
 const Profile = () => {
   const [email, setEmail] = useState('');
@@ -32,36 +33,27 @@ const Profile = () => {
   }, []);
 
   return (
-    <div>
+    <div className="profile-management">
       <div className="profile-info">
-        <p>Email: {email}</p>
-        <p>Groups:</p>
+        <p>Email: <span className="bold-text">{email}</span></p>
+        <p>Groups</p>
         <ul>
           {groups.map(group => (
-            <li key={group.id}>
-              <Link to={`/groups/${group.id}`}>
+            <li key={group.id} className="group-item">
+              <Link to={`/groups/${group.id}`} className="group-link">
                 {group.name}
               </Link>
             </li>
           ))}
         </ul>
       </div>
+     
+      <div className="favorites-section">
+        <h1>Favorites</h1>
+        <FavoritesPage userId={userId}/>
+      </div>
       <div className="delete-account">
         <DeleteAccount userId={userId} />
-      </div>
-      <div>
-        <h1>Favorites</h1>
-        <FavoritesPage />
-        <Routes>
-          <Route
-            path="/profile"
-            element={
-              <div>
-                <FavoritesPage />
-              </div>
-            }
-          />
-        </Routes>
       </div>
       {error && <p className="error-message">{error}</p>}
     </div>

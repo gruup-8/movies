@@ -218,88 +218,93 @@ const GroupManagement = ({requests}) => {
     }
 
     return (
-        <div>
+        <div className="group-management">
             {/* Group Details View */}
             {groupId && groupDetails ? (
-                <div>
+                <div className="group-info">
+                    <button onClick={() => navigate("/groups")} className="back-button">Back to Groups</button>
                     <h2>Group Info</h2>
                     <p>Name: {groupDetails.name}</p>
                     <p>Creator: {groupDetails.creator_id}</p>
-
-                {isCreator && (
-                    <div>
-                        <h3>Join Requests</h3>
-                        {error && <p style={{color: 'red'}}>{error}</p>}
-                        {status && <p style={{ color: 'green' }}>{status}</p>}
-                        <ul>
-                        {groupDetails?.requests ?.filter(request => request.status === 'pending').length > 0 ? (
-                                groupDetails.requests 
-                                .filter(request => request.status === 'pending')
-                                .map((request, index) => {
-                                    const key = request.id && request.userId 
-                                        ? `${request.id}-${request.userId}` 
-                                        : `${index}-${Math.random()}`; 
-
-                                    return (
-                                        <li key={key}>
-                                            <span>{request.userId}</span>
-                                            <div>
-                                                {request.status === 'pending' ? (
-                                                    <>
-                                                        <button onClick={() => handleResponse(request.userId, 'accept')}>Accept</button>
-                                                        <button onClick={() => handleResponse(request.userId, 'decline')}>Decline</button>
-                                                    </>
-                                                ) : (
-                                                    <span>{request.status}</span>
-                                                )}
-                                            </div>
-                                        </li>
-                                    );
-                                })
-                            ) : (
-                                <p>No requests</p>
-                            )}
-                        </ul>
-                    </div>
-                )}                   
+    
+                    {isCreator && (
+                        <div className="join-requests">
+                            <h3>Join Requests</h3>
+                            {error && <p style={{color: 'red'}}>{error}</p>}
+                            {status && <p style={{ color: 'green' }}>{status}</p>}
+                            <ul>
+                                {groupDetails?.requests ?.filter(request => request.status === 'pending').length > 0 ? (
+                                    groupDetails.requests 
+                                    .filter(request => request.status === 'pending')
+                                    .map((request, index) => {
+                                        const key = request.id && request.userId 
+                                            ? `${request.id}-${request.userId}` 
+                                            : `${index}-${Math.random()}`; 
+    
+                                        return (
+                                            <li key={key}>
+                                                <span>{request.userId}</span>
+                                                <div>
+                                                    {request.status === 'pending' ? (
+                                                        <>
+                                                            <button onClick={() => handleResponse(request.userId, 'accept')}>Accept</button>
+                                                            <button onClick={() => handleResponse(request.userId, 'decline')}>Decline</button>
+                                                        </>
+                                                    ) : (
+                                                        <span>{request.status}</span>
+                                                    )}
+                                                </div>
+                                            </li>
+                                        );
+                                    })
+                                ) : (
+                                    <p>No requests</p>
+                                )}
+                            </ul>
+                        </div>
+                    )}      
+                    <div className="group-members">             
                     <h3>Group Members</h3>
                     <ul>
-                    {groupDetails.members?.length > 0 ? (
-                        groupDetails.members.map((member, index) => {
-                            const key = member.user_id ? `${member.user_id}-${groupDetails.id}` : `${index}-${Math.random()}`;
-
-                            return (
-                                <li key={key}>
-                                    {member.userId}
-                                    {isCreator && member.userId !== groupDetails.creator_id && (
-                                        <button onClick={() => handleRemoveMember(member.userId)}>
-                                            Remove Member
-                                        </button>
-                                    )}
-                                </li>
-                            );
-                        })
-                    ) : (
-                        <div>No members yet</div>
-                    )}
+                        {groupDetails.members?.length > 0 ? (
+                            groupDetails.members.map((member, index) => {
+                                const key = member.user_id ? `${member.user_id}-${groupDetails.id}` : `${index}-${Math.random()}`;
+    
+                                return (
+                                    <li key={key}>
+                                        {member.userId}
+                                        {isCreator && member.userId !== groupDetails.creator_id && (
+                                            <button onClick={() => handleRemoveMember(member.userId)}>
+                                                Remove Member
+                                            </button>
+                                        )}
+                                    </li>
+                                );
+                            })
+                        ) : (
+                            <div>No members yet</div>
+                        )}
                     </ul>
+                    </div>
                     <button onClick={() => {
                         if(isCreator){
                             handleDeleteGroup(groupDetails.id);
                         } else {
                             handleLeaving(groupDetails.id);
                         }
-                    }}
+                    }} className="delete-button"
                     >
                         {isCreator ? "Delete Group" : "Leave Group"}
-                    </button>
+                    </button>                    
+                    <div className="group-movies">
                     <button onClick={() => navigate("/groups")}>Back to Groups</button>
                     <h4>Groups movies</h4>
                     <GroupMovies groupId={groupId} />
                 </div>
+                </div>
             ) : (
                 // Group List View
-                <div className="group-managment">
+                <div className="group-management">
                     <h2>Your Groups</h2>
                     <h3>Groups you are a member of</h3>
                     <ul>
@@ -310,21 +315,21 @@ const GroupManagement = ({requests}) => {
                         ))}
                     </ul>
                     <h3>Groups You Created</h3>
-            <ul>
-                {groups.filter((group) => group.status === 'creator').map((group) => (
-                    <li key={group.id}  onClick={() => handleGroupClick(group.id)} className="group-item">{group.name}</li>
-                ))}
-            </ul>
-                <h3>Available Groups</h3>
                     <ul>
-                    {availableGroups.map((group) => (
-                    <li key={group.id} className="group-item">
-                        {group.name}
-                        <button onClick={() => handleJoin(group.id)} className="join-button">
-                            {group.request_status === 'available' ? 'Request to Join' : 'pending'}
-                        </button>
-                    </li>
-                ))}
+                        {groups.filter((group) => group.status === 'creator').map((group) => (
+                            <li key={group.id} onClick={() => handleGroupClick(group.id)} className="group-item">{group.name}</li>
+                        ))}
+                    </ul>
+                    <h3>Available Groups</h3>
+                    <ul>
+                        {availableGroups.map((group) => (
+                            <li key={group.id} className="group-item">
+                                {group.name}
+                                <button onClick={() => handleJoin(group.id)} className="join-button">
+                                    {group.request_status === 'available' ? 'Request to Join' : 'pending'}
+                                </button>
+                            </li>
+                        ))}
                     </ul>
 
                     <h2>Create a New Group</h2>
@@ -343,4 +348,6 @@ const GroupManagement = ({requests}) => {
 
     );
 };
+
+    
 export default GroupManagement;

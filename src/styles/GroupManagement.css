@@ -1,88 +1,145 @@
 .group-management {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.8); /* Lisää läpinäkyvä tausta */
-    border-radius: 10px;
-    margin: 20px;
-  }
-  
-  .group-management h2, .group-management h3 {
-    margin-bottom: 20px;
-  }
-  
-  .group-management ul {
-    list-style: none; /* Poistaa mustan pisteen */
-    padding: 0;
-    width: 100%;
-    max-width: 300px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .group-management li {
-    padding: 10px 0;
-    border-bottom: 1px solid #ccc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 50%;
-  }
-  
-  .group-item {
-    text-decoration: none;
-    color: #333;
-    display: block;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f0f0f0;
-    transition: background-color 0.3s;
-    cursor: pointer;
-    width: 50%;
-    margin: 5px auto;
-  }
-  
-  .group-item:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .join-button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .join-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .group-input {
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .create-group-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 20px; /* Lisää väli napin ja ryhmän nimen väliin */
-  }
-  
-  .create-group-button:hover {
-    background-color: #0056b3;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px;
+}
+
+.group-management h2, .group-management h3 {
+  margin-bottom: 20px;
+}
+
+.group-management ul {
+  list-style: none; /* Poistaa mustan pisteen */
+  padding: 0;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Keskitetään sisältö */
+}
+
+.group-management li {
+  padding: 5px 0; /* Pienennetään paddingia */
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Asetetaan leveys 100% */
+}
+
+.group-item {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  transition: background-color 0.3s;
+  cursor: pointer;
+  width: 50%; /* Asetetaan leveys 50% */
+  margin: 5px; /* Lisää marginaalia ylös ja alas */
+}
+
+.group-item span {
+  flex: 1;
+  text-align: center;
+  margin-right: 20px;
+}
+
+.group-item:hover {
+  background-color: #e0e0e0;
+}
+
+.join-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 20px; 
+}
+
+.join-button:hover {
+  background-color: #0056b3;
+}
+
+.group-input {
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.create-group-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px; /* Lisää väli napin ja ryhmän nimen väliin */
+}
+
+.create-group-button:hover {
+  background-color: #0056b3;
+}
+
+.back-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 20px; /* Lisää väli napin ja ryhmän nimen väliin */
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+.group-info {
+  width: 100%;
+  max-width: 600px;
+  background-color: rgba(255, 255, 255, 0.9); /* Lisää läpinäkyvä tausta */
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.group-info h2 {
+  margin-bottom: 20px;
+}
+
+.group-info p {
+  margin-bottom: 10px;
+}
+
+.join-requests, .group-members, .group-movies {
+  margin-bottom: 20px;
+}
+
+.delete-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}

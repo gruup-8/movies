@@ -31,6 +31,7 @@ const Navbar = ({ isLoggedIn,  setIsLoggedIn, setUser }) => {
                     <li><Link to="/showtimes">Showtimes</Link></li>
                     <li><Link to="/groups">Groups</Link></li>
                     <li><Link to="/profile">Profile</Link></li>
+                    <li><Link to="/about">About</Link></li>
                 </ul>
                 <div className="auth-links">
                 {isLoggedIn ? (
@@ -39,9 +40,6 @@ const Navbar = ({ isLoggedIn,  setIsLoggedIn, setUser }) => {
                     <>
                     <Link to="/login">
                     <button>Login/Signup</button>
-                    </Link>
-                    <Link to="/about">
-                    <button>About</button>
                     </Link>
                     </>
                 )}

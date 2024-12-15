@@ -1,3 +1,93 @@
+.profile-management {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px;
+  }
+  
+  .profile-info {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .profile-info p {
+    margin-bottom: 10px;
+  }
+  
+  .profile-info h2 {
+    margin-bottom: 20px;
+  }
+  
+  .profile-info ul {
+    list-style: none; /* Poistaa mustan pisteen */
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Keskitetään sisältö */
+  }
+  
+  .profile-info li {
+    padding: 5px 0; /* Pienennetään paddingia */
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%; /* Asetetaan leveys 100% */
+  }
+
+  .bold-text {
+    font-weight: bold;
+  }
+  
+  .group-item {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: rgba(240, 240, 240, 0.5); /* Haalean läpinäkyvä tausta */
+    transition: background-color 0.3s;
+    cursor: default;
+    width: 50%; /* Asetetaan leveys 50% */
+    margin: 5px 0; /* Lisää marginaalia ylös ja alas */
+    text-align: center;
+  }
+
+  .group-link {
+    text-decoration: none;
+    color: #000000;
+  }
+  
+  .group-item:hover {
+    background-color: rgba(224, 224, 224, 0.5); /* Haalean läpinäkyvä hover-efekti */
+  }
+  
+  .delete-account {
+    width: 100%;
+    
+  }
+  
+  .favorites-section {
+    width: 100%;
+    max-width: 600px;
+    background-color: rgba(255, 255, 255, 0.5); /* Haalean läpinäkyvä tausta */
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 20px;
+  }
+  
 /* Profile container styling */
 .profile-info {
     background-color: #9bb5cc;
