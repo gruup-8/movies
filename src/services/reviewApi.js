@@ -3,9 +3,12 @@ import { getToken } from "./authService";
 const BASE_URL = 'http://localhost:3001';
 
 // Fetch reviews for a movie
-export const fetchReviews = async() => {
+export const fetchReviews = async(movieId) => {
     try{
-        const response = await fetch(`${BASE_URL}/review`,{
+      const url = movieId
+      ? `${BASE_URL}/review?movie_id=${movieId}` // Pass `movie_id` as a query param
+      : `${BASE_URL}/review`;
+        const response = await fetch(url,{
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
         });

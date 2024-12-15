@@ -10,8 +10,8 @@ const MovieReview = ({ movieId }) => {
   useEffect(() => {
     const loadReviews = async () => {
       try {
-        const reviews = await fetchReviews(movieId);
-        setReviews(reviews);
+        const movieReviews = await fetchReviews(movieId);
+        setReviews(movieReviews);
       } catch (error) {
         console.error("Error loading movie data:", error);
       }

@@ -45,17 +45,13 @@ export async function registerScreen(email, password) {
             },
             body: JSON.stringify({ email, password }),
         });
-
+        console.log('Request payload:', { email, password });
         const data = await response.json();
 
         if (response.ok) {
-            const { token, user } = data;
+            const { user } = data;
             console.log('Registered successfully: ', user);
 
-            if (token) {
-                saveToken(token);
-                console.log('Token saved', token);
-            }
             return user;
         } else {
             throw new Error(`Registration failed: ${data.message}`);
