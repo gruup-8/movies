@@ -1,0 +1,87 @@
+/* Profile container styling */
+.profile-info {
+    background-color: #9bb5cc;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+.profile-info p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.profile-info ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.profile-info ul li {
+    margin: 5px 0;
+}
+
+.profile-info ul li a {
+    color: #0056b3;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.profile-info ul li a:hover {
+    color: #281497;
+}
+
+/* Error message styling */
+.error-message {
+    color: #d9534f;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #f5c6cb;
+    margin: 20px 0;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Favorites section styling */
+.favorites-section {
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.favorites-section h1 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Delete account button styling */
+.delete-account {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.delete-account button {
+    padding: 10px 20px;
+    background-color: #d7403b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.delete-account button:hover {
+    background-color: #c9302c;
+    transform: scale(1.05);
+}
