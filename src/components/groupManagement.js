@@ -295,9 +295,9 @@ const GroupManagement = ({requests}) => {
                     }} className="delete-button"
                     >
                         {isCreator ? "Delete Group" : "Leave Group"}
-                    </button>
-                    
+                    </button>                    
                     <div className="group-movies">
+                    <button onClick={() => navigate("/groups")}>Back to Groups</button>
                     <h4>Groups movies</h4>
                     <GroupMovies groupId={groupId} />
                 </div>
@@ -308,8 +308,8 @@ const GroupManagement = ({requests}) => {
                     <h2>Your Groups</h2>
                     <h3>Groups you are a member of</h3>
                     <ul>
-                        {yourGroups.map((group) => (
-                            <li key={group.id} onClick={() => handleGroupClick(group.id)}>
+                        {groups.filter((group) => group.status === 'member').map((group) => (
+                            <li key={group.id} onClick={() => handleGroupClick(group.id)} className="group-item">
                                 {group.name}
                             </li>
                         ))}

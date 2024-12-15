@@ -73,9 +73,21 @@ function App() {
         {/* Public Route: Register */}
         <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
         <Route path="/groups" element={<Groups />} />
-        <Route path="/" element={<GroupManagement />} />
         <Route path="/groups/:groupId" element={<GroupManagement />} />
-        <Route path="/profile/*" element={<Profile userId={sessionStorage.getItem('userId')} groups={[]} DeleteAccount={DeleteAccount} />} />
+        <Route 
+          path="/profile/*" 
+          element={
+            isLoggedIn ? (
+              <Profile userId={sessionStorage.getItem('userId')} groups={[]} DeleteAccount={DeleteAccount} />
+            ) : (
+              <div className='not-logged-in'>
+                <h2>Please Login first</h2>
+                <p>You need to have an account to view your profile</p>
+                <Link to="/login">Login here</Link>
+              </div>
+            )            
+          }
+        />
         <Route path="/about" element={<About />} />
         <Route path="/favorites/public/:userId" element={<PublicFavoritesPage />} />
         <Route path="/favorites/public" element={<PublicFavorites />} />

@@ -72,7 +72,7 @@
 
 /* Search bar container */
 .movie-page input[type="text"] {
-    width: 60%;
+    width: 30%;
     padding: 10px 15px;
     border-radius: 25px;
     border: 1px solid #000E4B;
@@ -111,7 +111,7 @@
 
 /* Genre dropdown styling */
 .movie-page select {
-    width: 60%;
+    width: 30%;
     padding: 10px 15px;
     border-radius: 25px;
     border: 1px solid #000E4B;

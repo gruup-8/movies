@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Movies.css";
+import "../styles/Profile.css"
 import { Route, Routes } from "react-router-dom";
 import FavoritesPage from "../components/Favorites";
 import DeleteAccount from "../components/deleteUser";
