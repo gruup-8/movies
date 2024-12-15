@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../styles/Movies.css";
+import { jwtDecode } from "jwt-decode";
+import { getToken } from "../services/authService";
+import { getUserInfo } from "../services/favorites";
 
 const PublicFavorites = () => {
     const [userLink, setUserLink] = useState("");
@@ -14,20 +17,47 @@ const PublicFavorites = () => {
     };
 
     // Handle form submission to add a public link
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const extractedUserId = extractUserId(userLink);
 
         if (extractedUserId) {
-            // Save the new link in local storage and update state
+            try {
+            const response = await fetch(`http://localhost:3001/favorites/public/share/${extractedUserId}`);
+                if (!response.ok) {
+                    throw new Error("This user's public favorites are unavailable.");
+                }
+            
             const newLink = { userId: extractedUserId, link: userLink };
             const updatedLinks = [...savedLinks, newLink];
             setSavedLinks(updatedLinks);
             localStorage.setItem("favoriteLinks", JSON.stringify(updatedLinks));
             setUserLink(""); 
             setError(null); 
+            } catch (err) {
+                setError("This public favorites link is not valid");
+            }
         } else {
             setError("Please enter a valid public favorites link.");
+        }
+    };
+
+    const handleDeleteLink = (linkToDelete, userToDelete) => {
+        try {
+            const { userId: loggedInUser } = getUserInfo();
+            console.log("Logged-in user ID:", loggedInUser);
+            console.log("User to delete ID:", userToDelete);
+
+            if (String(loggedInUser) === String(userToDelete)) {
+                const updatedLinks = savedLinks.filter((link) => link.link !== linkToDelete);
+                setSavedLinks(updatedLinks);
+                localStorage.setItem("favoriteLinks", JSON.stringify(updatedLinks));
+            } else {
+                setError("You can only delete your own favorite links.");
+            }
+        } catch (error) {
+            setError("You must be logged in to delete the link.");
+            console.error("Error during deletion:", error);
         }
     };
 
@@ -38,6 +68,8 @@ const PublicFavorites = () => {
             setSavedLinks(JSON.parse(storedLinks)); 
         }
     }, []);
+
+    const { userId: loggedInUser } = getUserInfo() || {};
 
     return (
         <div className="public-favorites">
@@ -72,6 +104,9 @@ const PublicFavorites = () => {
                                 >
                                     View Public Favorites of User {linkObj.userId}
                                 </a>
+                                {String(loggedInUser) === String(linkObj.userId) && (
+                                    <button onClick={() => handleDeleteLink(linkObj.link, linkObj.userId)}>Delete</button>
+                                )}
                             </li>
                         ))}
                     </ul>

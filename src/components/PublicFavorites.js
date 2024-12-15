@@ -11,6 +11,12 @@ const PublicFavoritesPage = () => {
             try {
                 const response = await fetch(`http://localhost:3001/favorites/public/share/${userId}`);
                 if (!response.ok) {
+                    if (response.status === 404) {
+                        // User or favorites not found, redirect or show an error
+                        setError("User or favorites not found.");
+                        setFavorites([]); // Clear favorites
+                        return;
+                    }
                     throw new Error('Failed to fetch public favorites list');
                 }
                 const data = await response.json();

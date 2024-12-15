@@ -2,7 +2,7 @@ import React from "react";
 import { deleteUser, handleLogout } from "../services/user";
 import { useNavigate } from "react-router-dom";
 
-function DeleteAccount({ userId, onLogout }) {
+function DeleteAccount({ userId, onLogout, onUserDeleted }) {
     const navigate = useNavigate();
 
     const handleDelete = async () => {
@@ -11,9 +11,9 @@ function DeleteAccount({ userId, onLogout }) {
                 await deleteUser(userId);
                 alert('Account deleted successfully');
 
+                onUserDeleted(userId);
                 await handleLogout();
                 navigate('/');
-
             } catch (error) {
                 alert(`Error: ${error.message}`);
             }

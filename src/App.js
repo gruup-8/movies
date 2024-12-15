@@ -73,7 +73,6 @@ function App() {
         {/* Public Route: Register */}
         <Route path="/register" element={<RegisterForm onLogin={handleLogin} />} />
         <Route path="/groups" element={<Groups />} />
-        <Route path="/" element={<GroupManagement />} />
         <Route path="/groups/:groupId" element={<GroupManagement />} />
         <Route path="/profile/*" element={<Profile userId={sessionStorage.getItem('userId')} groups={[]} DeleteAccount={DeleteAccount} />} />
         <Route path="/about" element={<About />} />

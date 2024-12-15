@@ -3,8 +3,8 @@ import { registerScreen } from "../services/user";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
-//pg@foo.com
-//Pg12345!
+//pc@foo.com
+//Pc12345!
 import '../styles/Register.css';
 
 const USER_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]{1,63}\.(com|fi)$/;
