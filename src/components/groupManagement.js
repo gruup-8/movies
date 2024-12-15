@@ -303,8 +303,8 @@ const GroupManagement = ({requests}) => {
                     <h2>Your Groups</h2>
                     <h3>Groups you are a member of</h3>
                     <ul>
-                        {yourGroups.map((group) => (
-                            <li key={group.id} onClick={() => handleGroupClick(group.id)}>
+                        {groups.filter((group) => group.status === 'member').map((group) => (
+                            <li key={group.id} onClick={() => handleGroupClick(group.id)} className="group-item">
                                 {group.name}
                             </li>
                         ))}
