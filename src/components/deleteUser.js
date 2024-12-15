@@ -1,6 +1,7 @@
 import React from "react";
 import { deleteUser, handleLogout } from "../services/user";
 import { useNavigate } from "react-router-dom";
+import "../styles/DeleteUser.css";
 
 function DeleteAccount({ userId, onLogout }) {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ function DeleteAccount({ userId, onLogout }) {
         }
     };
     return (
-    <button onClick={handleDelete}>Delete Account</button>
+    <button onClick={handleDelete} className="delete-account-button">Delete Account</button>
     );
 }
 

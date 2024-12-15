@@ -1,0 +1,14 @@
+.delete-account-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #dc3545; /* Punainen tausta */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .delete-account-button:hover {
+    background-color: #c82333; /* Tummempi punainen hover-efekti */
+  }
+  
