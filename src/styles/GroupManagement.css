@@ -130,6 +130,35 @@
   margin-bottom: 20px;
 }
 
+.join-requests, .group-members {
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  text-align: center; 
+  width: 100%; 
+}
+
+.group-members ul,
+.join-requests ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: none;
+    padding: 0;
+    list-style: none;
+}
+
+.group-members li,
+.join-requests li {
+    display: flex;
+    justify-content: space-between; /* Align items in the list horizontally */
+    align-items: center; /* Align vertically within the list */
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd; /* Optional: Add a border for separation */
+    border-radius: 5px; /* Optional: Add some rounded corners */
+}
+
 .delete-button {
   padding: 10px 20px;
   border: none;
